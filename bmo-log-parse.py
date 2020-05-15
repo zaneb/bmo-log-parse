@@ -66,9 +66,12 @@ class Record:
         self.stacktrace = data.pop('stacktrace', None)
         data.pop('errorVerbose', None)
         self.data = data
-        self.name = (data.get('Request.Name')
-                        if self.logger == CONTROLLER
-                        else data.get('host'))
+        if self.stacktrace is not None:
+            self.name = data['request'].split('/', 1)[1]
+        else:
+            self.name = (data.get('Request.Name')
+                            if self.logger == CONTROLLER
+                            else data.get('host'))
 
     def __str__(self):
         if self.data:
