@@ -73,16 +73,25 @@ class Record:
                             if self.logger == CONTROLLER
                             else data.get('host'))
 
-    def __str__(self):
+    def format(self, highlight=False):
+        esc = (('\033[91m', '\033[39m')
+                   if highlight and self.level == ERROR
+                   else ('', ''))
+
+        extra_data = ''
         if self.data:
-            extra_data = ' {%s}' % ', '.join(f'{k}: {repr(v)}'
-                                             for k, v in self.data.items())
-        else:
-            extra_data = ''
-        if self.stacktrace is not None:
-            extra_data += f'\n{self.stacktrace}'
+            items = ', '.join(f'{k}: {repr(v)}'
+                              for k, v in self.data.items())
+            extra_data = f' {{{items}}}{esc[1]}'
+        if (st := self.stacktrace) is not None:
+            if highlight:
+                st = '\n'.join(f'\033[90m{l}\033[39m' for l in st.splitlines())
+            extra_data = '\n'.join([extra_data, st])
         timestamp = self.timestamp.isoformat(timespec='milliseconds')[:-6]
-        return f'{timestamp} {self.message}{extra_data}'
+        return f'{esc[0]}{timestamp} {self.message}{extra_data}'
+
+    def __str__(self):
+        return self.format()
 
 
 Filter = collections.namedtuple('Filter', ['filterfunc', 'predicate'])
@@ -94,15 +103,11 @@ def filtered_records(logstream, filters):
 
 
 def process_log(input_stream, filters, output_stream=sys.stdout):
-    should_highlight = output_stream.isatty()
-
-    normal_esc = '', ''
-    err_esc = '\033[91m', '\033[39m'
+    highlight = output_stream.isatty()
 
     for r in filtered_records(input_stream, filters):
-        esc = err_esc if should_highlight and r.level == ERROR else normal_esc
         try:
-            output_stream.write(f'{esc[0]}{r}{esc[1]}\n')
+            output_stream.write(f'{r.format(highlight)}\n')
         except BrokenPipeError:
             # Acknowledge failed writes now, otherwise an error is printed to
             # the console on interpreter exit.
