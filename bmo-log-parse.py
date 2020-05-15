@@ -102,20 +102,17 @@ def filtered_records(logstream, filters):
                             filters, read_records(logstream))
 
 
-def process_log(input_stream, filters, output_stream=sys.stdout):
-    highlight = output_stream.isatty()
-
+def process_log(input_stream, filters, output_stream=sys.stdout,
+                highlight=False):
     for r in filtered_records(input_stream, filters):
         try:
             output_stream.write(f'{r.format(highlight)}\n')
         except BrokenPipeError:
-            # Acknowledge failed writes now, otherwise an error is printed to
-            # the console on interpreter exit.
-            try:
-                output_stream.flush()
-            except IOError:
-                pass
-            return
+            break
+    try:
+        output_stream.flush()
+    except BrokenPipeError:
+        pass
 
 
 def get_filters(options):
@@ -178,6 +175,34 @@ def input_stream(filename):
         return open(filename)
 
 
+@contextlib.contextmanager
+def pager(output_stream):
+    if not output_stream.isatty():
+        yield output_stream
+        return
+
+    import subprocess
+    pager = subprocess.Popen(['less', '-R'],
+                             stdin=subprocess.PIPE)
+    try:
+        import io
+        with io.TextIOWrapper(pager.stdin,
+                              errors='backslashreplace') as stream:
+            try:
+                yield stream
+            except KeyboardInterrupt:
+                pass
+    except OSError:
+        pass
+    while True:
+        try:
+            pager.wait()
+            break
+        except KeyboardInterrupt:
+            # Pager ignores Ctrl-C, so we should too
+            pass
+
+
 def main():
     try:
         options = get_options()
@@ -187,7 +212,8 @@ def main():
 
     filters = get_filters(options)
     with input_stream(options.logfile) as logstream:
-        process_log(logstream, filters)
+        with pager(sys.stdout) as output_stream:
+            process_log(logstream, filters, output_stream, sys.stdout.isatty())
     return 0
 
 
