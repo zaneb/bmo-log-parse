@@ -63,6 +63,8 @@ class Record:
         self.timestamp = datetime.datetime.fromtimestamp(ts, tz=utc)
         self.logger = data.pop(self.LOGGER)
         self.message = data.pop(self.MESSAGE)
+        self.stacktrace = data.pop('stacktrace', None)
+        data.pop('errorVerbose', None)
         self.data = data
         self.name = (data.get('Request.Name')
                         if self.logger == CONTROLLER
@@ -74,6 +76,8 @@ class Record:
                                              for k, v in self.data.items())
         else:
             extra_data = ''
+        if self.stacktrace is not None:
+            extra_data += f'\n{self.stacktrace}'
         timestamp = self.timestamp.isoformat(timespec='milliseconds')[:-6]
         return f'{timestamp} {self.message}{extra_data}'
 
