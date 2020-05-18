@@ -176,8 +176,10 @@ def input_stream(filename):
 
 
 @contextlib.contextmanager
-def pager(output_stream):
+def pager(output_stream, line_buffer=False):
     if not output_stream.isatty():
+        if line_buffer:
+            output_stream.reconfigure(line_buffering=line_buffer)
         yield output_stream
         return
 
@@ -187,6 +189,7 @@ def pager(output_stream):
     try:
         import io
         with io.TextIOWrapper(pager.stdin,
+                              line_buffering=line_buffer,
                               errors='backslashreplace') as stream:
             try:
                 yield stream
@@ -212,7 +215,8 @@ def main():
 
     filters = get_filters(options)
     with input_stream(options.logfile) as logstream:
-        with pager(sys.stdout) as output_stream:
+        line_buffer = not logstream.seekable()
+        with pager(sys.stdout, line_buffer) as output_stream:
             process_log(logstream, filters, output_stream, sys.stdout.isatty())
     return 0
 
