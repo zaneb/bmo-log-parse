@@ -43,12 +43,15 @@ LEVELS = (
 
 
 def read_records(logstream):
+    """Iterate over all Records in a stream."""
     return map(Record,
                filter(lambda l: l.startswith('{'),
                       logstream))
 
 
 class Record:
+    """Class representing a single log record."""
+
     COMMON_FIELDS = (
         LEVEL, TIMESTAMP, LOGGER, MESSAGE,
     ) = (
@@ -56,6 +59,7 @@ class Record:
     )
 
     def __init__(self, line):
+        """Initialise from the (JSON) log text."""
         data = json.loads(line)
         self.level = data.pop(self.LEVEL)
         ts = float(data.pop(self.TIMESTAMP))
@@ -74,6 +78,11 @@ class Record:
                             else data.get('host'))
 
     def format(self, highlight=False):
+        """
+        Format the log record as a human-readable string.
+
+        :param highlight: Use ANSI escape codes to set colours.
+        """
         esc = (('\033[91m', '\033[39m')
                    if highlight and self.level == ERROR
                    else ('', ''))
@@ -98,12 +107,14 @@ Filter = collections.namedtuple('Filter', ['filterfunc', 'predicate'])
 
 
 def filtered_records(logstream, filters):
+    """Iterate over all log Records in the stream that match the filters."""
     return functools.reduce(lambda r,f: f.filterfunc(f.predicate, r),
                             filters, read_records(logstream))
 
 
 def process_log(input_stream, filters, output_stream=sys.stdout,
                 highlight=False):
+    """Process the input log stream and write to an output stream."""
     for r in filtered_records(input_stream, filters):
         try:
             output_stream.write(f'{r.format(highlight)}\n')
@@ -116,6 +127,7 @@ def process_log(input_stream, filters, output_stream=sys.stdout,
 
 
 def get_filters(options):
+    """Iterate over the Filters specified by the given CLI options."""
     if (start_time := options.start) is not None:
         if start_time.tzinfo is None:
             start_time = start_time.replace(tzinfo=datetime.timezone.utc)
@@ -137,6 +149,7 @@ def get_filters(options):
 
 
 def get_options(args=None):
+    """Parse the CLI arguments into options."""
     import argparse
     import pydoc
 
@@ -169,6 +182,11 @@ def get_options(args=None):
 
 
 def input_stream(filename):
+    """
+    Return a context manager for an input stream given the filename option.
+
+    Returns stdin if the filename is '-'.
+    """
     if filename == '-':
         return contextlib.nullcontext(sys.stdin)
     else:
@@ -177,6 +195,12 @@ def input_stream(filename):
 
 @contextlib.contextmanager
 def pager(output_stream, line_buffer=False):
+    """
+    A context manager that launches a pager for the output if appropriate.
+
+    If the output stream is not to the console (i.e. it is piped or
+    redirected), no pager will be launched.
+    """
     if not output_stream.isatty():
         if line_buffer:
             output_stream.reconfigure(line_buffering=line_buffer)
@@ -207,6 +231,7 @@ def pager(output_stream, line_buffer=False):
 
 
 def main():
+    """Run the log parser, reading options from the command line."""
     try:
         options = get_options()
     except Exception as exc:
