@@ -31,7 +31,7 @@ LOGGERS = (
     COMMAND, RUNTIME,
     CONTROLLER, PROVISIONER,
 ) = (
-    'cmd', 'controller-runtime.controller',
+    'cmd', 'controller-runtime',
     'baremetalhost', 'baremetalhost_ironic',
 )
 
@@ -65,7 +65,7 @@ class Record:
         ts = float(data.pop(self.TIMESTAMP))
         utc = datetime.timezone.utc
         self.timestamp = datetime.datetime.fromtimestamp(ts, tz=utc)
-        self.logger = data.pop(self.LOGGER)
+        self.logger = data.pop(self.LOGGER).split('.', 1)[0]
         self.message = data.pop(self.MESSAGE)
         self.stacktrace = data.pop('stacktrace', None)
         data.pop('errorVerbose', None)
