@@ -4,7 +4,7 @@ This is tool to produce human-readable logs from the structured log output of
 the [baremetal-operator](https://github.com/metal3-io/baremetal-operator) from
 the [Metal³](https://metal3.io/) project.
 
-It is written in Python and requires Python 3.8 (or later).
+It is written in Python and requires Python 3.7 or later.
 
 ## Usage
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.8
+#!/usr/bin/env python3
 
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
@@ -92,7 +92,8 @@ class Record:
             items = ', '.join(f'{k}: {repr(v)}'
                               for k, v in self.data.items())
             extra_data = f' {{{items}}}{esc[1]}'
-        if (st := self.stacktrace) is not None:
+        if self.stacktrace is not None:
+            st = self.stacktrace
             if highlight:
                 st = '\n'.join(f'\033[90m{l}\033[39m' for l in st.splitlines())
             extra_data = '\n'.join([extra_data, st])
@@ -128,7 +129,8 @@ def process_log(input_stream, filters, output_stream=sys.stdout,
 
 def get_filters(options):
     """Iterate over the Filters specified by the given CLI options."""
-    if (start_time := options.start) is not None:
+    if options.start is not None:
+        start_time = options.start
         if start_time.tzinfo is None:
             start_time = start_time.replace(tzinfo=datetime.timezone.utc)
         yield Filter(itertools.dropwhile,
@@ -139,9 +141,11 @@ def get_filters(options):
         yield Filter(filter, lambda r: r.logger == CONTROLLER)
     if options.provisioner_only:
         yield Filter(filter, lambda r: r.logger == PROVISIONER)
-    if (name := options.name) is not None:
+    if options.name is not None:
+        name = options.name
         yield Filter(filter, lambda r: r.name == name)
-    if (end_time := options.end) is not None:
+    if options.end is not None:
+        end_time = options.end
         if end_time.tzinfo is None:
             end_time = end_time.replace(tzinfo=datetime.timezone.utc)
         yield Filter(itertools.takewhile,
