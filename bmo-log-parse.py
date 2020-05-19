@@ -152,6 +152,20 @@ def get_filters(options):
                      lambda r: r.timestamp <= end_time)
 
 
+def parse_datetime(dtstr):
+    if hasattr(datetime.datetime, 'fromisoformat'):
+        return datetime.datetime.fromisoformat(dtstr)
+
+    fmt = '%Y-%m-%d'
+    if 'T' in dtstr:
+        fmt += 'T%H:%M'
+        if dtstr.count(':') > 1:
+            fmt += ':%S'
+            if '.' in dtstr:
+                fmt += '.%f'
+    return datetime.datetime.strptime(dtstr, fmt)
+
+
 def get_options(args=None):
     """Parse the CLI arguments into options."""
     import argparse
@@ -174,12 +188,11 @@ def get_options(args=None):
     parser.add_argument('-n', '--name', default=None,
                         help='Filter by a particular host name')
 
-    time_type = datetime.datetime.fromisoformat
     parser.add_argument('-s', '--start', default=None,
-                        type=time_type,
+                        type=parse_datetime,
                         help='Skip ahead to a given time')
     parser.add_argument('-e', '--end', default=None,
-                        type=time_type,
+                        type=parse_datetime,
                         help='Stop reading at a given time')
 
     return parser.parse_args(args)

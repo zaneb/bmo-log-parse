@@ -265,6 +265,24 @@ I0513 14:23:52.882595       1 leaderelection.go:251] successfully acquired lease
             self.assertTrue(l.startswith('2020-'))
 
 
+class TestParseTime(unittest.TestCase):
+    def test_date_only(self):
+        self.assertEqual(datetime.datetime(2020, 5, 19),
+                         bmlp.parse_datetime('2020-05-19'))
+
+    def test_minute(self):
+        self.assertEqual(datetime.datetime(2020, 5, 19, 13, 27, 0),
+                         bmlp.parse_datetime('2020-05-19T13:27'))
+
+    def test_second(self):
+        self.assertEqual(datetime.datetime(2020, 5, 19, 13, 27, 49),
+                         bmlp.parse_datetime('2020-05-19T13:27:49'))
+
+    def test_microsecond(self):
+        self.assertEqual(datetime.datetime(2020, 5, 19, 13, 27, 49, 32000),
+                         bmlp.parse_datetime('2020-05-19T13:27:49.032'))
+
+
 class TestFilter(unittest.TestCase):
     log = """
 {"level":"info","ts":1589380774.1207273,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
