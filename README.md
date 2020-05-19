@@ -34,6 +34,4 @@ Several filters are available to winnow the output.
 
 ## Testing
 
-Run the unit tests using the command:
-
-    python3.8 -m unittest test_bmo-log-parse.py
+Run the unit tests using `tox`.
