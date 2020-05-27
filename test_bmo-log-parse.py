@@ -89,7 +89,7 @@ class RecordTest(unittest.TestCase):
     def test_stacktrace(self):
         l = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
         r1 = bmlp.Record(l)
-        self.assertIsNone(r1.stacktrace)
+        self.assertIsNone(r1.context)
 
         e = ('{"level":"error","ts":1589381055.1638162,'
              '"logger":"controller-runtime.controller",'
@@ -103,7 +103,17 @@ class RecordTest(unittest.TestCase):
         self.assertEqual('github.com/go-logr/zapr.(*zapLogger).Error\n'
                          '\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/'
                          'zapr.go:128',
-                         r2.stacktrace)
+                         r2.context)
+
+    def test_hardware_details(self):
+        l = ('{"level":"info","ts":1590157176.3108344,'
+             '"logger":"baremetalhost_ironic",'
+             '"msg":"received introspection data",'
+             '"data":{"cpu":{"architecture":"x86_64","count":1}}'
+             '}')
+        r = bmlp.Record(l)
+        self.assertEqual('cpu:\n  architecture: x86_64\n  count: 1\n',
+                         r.context)
 
     def test_data(self):
         b = ('{"level":"info","ts":1589380774.1207273,'

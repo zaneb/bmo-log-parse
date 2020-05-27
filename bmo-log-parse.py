@@ -26,6 +26,13 @@ import itertools
 import json
 import sys
 
+try:
+    import yaml
+except ImportError:
+    pretty_print = functools.partial(json.dumps, indent=2)
+else:
+    pretty_print = yaml.safe_dump
+
 
 LOGGERS = (
     COMMAND, RUNTIME,
@@ -67,15 +74,18 @@ class Record:
         self.timestamp = datetime.datetime.fromtimestamp(ts, tz=utc)
         self.logger = data.pop(self.LOGGER).split('.', 1)[0]
         self.message = data.pop(self.MESSAGE)
-        self.stacktrace = data.pop('stacktrace', None)
+        self.context = None
+        self.name = (data.get('Request.Name')
+                        if self.logger == CONTROLLER
+                        else data.get('host'))
+        if 'stacktrace' in data:
+            self.name = data['request'].split('/', 1)[1]
+            self.context = data.pop('stacktrace')
+        elif (self.message == 'received introspection data' and
+                'data' in data):
+            self.context = pretty_print(data.pop('data'))
         data.pop('errorVerbose', None)
         self.data = data
-        if self.stacktrace is not None:
-            self.name = data['request'].split('/', 1)[1]
-        else:
-            self.name = (data.get('Request.Name')
-                            if self.logger == CONTROLLER
-                            else data.get('host'))
 
     def format(self, highlight=False):
         """
@@ -92,11 +102,11 @@ class Record:
             items = ', '.join(f'{k}: {repr(v)}'
                               for k, v in self.data.items())
             extra_data = f' {{{items}}}{esc[1]}'
-        if self.stacktrace is not None:
-            st = self.stacktrace
+        if self.context is not None:
+            ct = self.context
             if highlight:
-                st = '\n'.join(f'\033[90m{l}\033[39m' for l in st.splitlines())
-            extra_data = '\n'.join([extra_data, st])
+                ct = '\n'.join(f'\033[90m{l}\033[39m' for l in ct.splitlines())
+            extra_data = '\n'.join([extra_data, ct])
         timestamp = self.timestamp.isoformat(timespec='milliseconds')[:-6]
         return f'{esc[0]}{timestamp} {self.message}{extra_data}'
 
