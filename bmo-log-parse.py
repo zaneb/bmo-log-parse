@@ -235,7 +235,7 @@ def pager(output_stream, line_buffer=False):
         return
 
     import subprocess
-    pager = subprocess.Popen(['less', '-R'],
+    pager = subprocess.Popen(['less', '-R', '-F'],
                              stdin=subprocess.PIPE)
     try:
         import io
