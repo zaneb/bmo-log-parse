@@ -215,7 +215,11 @@ def input_stream(filename):
     Returns stdin if the filename is '-'.
     """
     if filename == '-':
-        return contextlib.nullcontext(sys.stdin)
+        @contextlib.contextmanager
+        def nullcontext(arg):
+            yield arg
+
+        return nullcontext(sys.stdin)
     else:
         return open(filename)
 
