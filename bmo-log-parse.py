@@ -232,8 +232,6 @@ def pager(output_stream=None, line_buffer=False):
     If the output stream is not to the console (i.e. it is piped or
     redirected), no pager will be launched.
     """
-    import io
-
     use_stdout = output_stream is None
     if use_stdout:
         output_stream = sys.stdout
@@ -244,6 +242,7 @@ def pager(output_stream=None, line_buffer=False):
             if hasattr(output_stream, 'reconfigure'):
                 output_stream.reconfigure(line_buffering=line_buffer)
             else:
+                import io
                 # Pure-python I/O
                 if hasattr(output_stream, '_line_buffering'):
                     output_stream._line_buffering = line_buffer
@@ -272,11 +271,12 @@ def pager(output_stream=None, line_buffer=False):
     args = ['--RAW-CONTROL-CHARS']  # Enable colour output
     if not line_buffer:
         args.append('--quit-if-one-screen')
-    pager = subprocess.Popen(['less'] + args, **streams)
+    pager = subprocess.Popen(['less'] + args,
+                             bufsize=1 if line_buffer else -1,
+                             errors='backslashreplace',
+                             **streams)
     try:
-        with io.TextIOWrapper(pager.stdin,
-                              line_buffering=line_buffer,
-                              errors='backslashreplace') as stream:
+        with contextlib.closing(pager.stdin) as stream:
             yield stream
     except OSError:
         pass
