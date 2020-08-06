@@ -225,16 +225,44 @@ def input_stream(filename):
 
 
 @contextlib.contextmanager
-def pager(output_stream, line_buffer=False):
+def pager(output_stream=None, line_buffer=False):
     """
     A context manager that launches a pager for the output if appropriate.
 
     If the output stream is not to the console (i.e. it is piped or
     redirected), no pager will be launched.
     """
+    import io
+
+    use_stdout = output_stream is None
+    if use_stdout:
+        output_stream = sys.stdout
+
     if not output_stream.isatty():
         if line_buffer:
-            output_stream.reconfigure(line_buffering=line_buffer)
+            # Python 3.7 & later
+            if hasattr(output_stream, 'reconfigure'):
+                output_stream.reconfigure(line_buffering=line_buffer)
+            else:
+                # Pure-python I/O
+                if hasattr(output_stream, '_line_buffering'):
+                    output_stream._line_buffering = line_buffer
+                    output_stream.flush()
+                # Native I/O on Python 3.6
+                elif (isinstance(output_stream, io.TextIOWrapper) and
+                        not output_stream.line_buffering):
+                    args = {
+                        'encoding': output_stream.encoding,
+                        'errors': output_stream.errors,
+                    }
+                    if use_stdout:
+                        sys.stdout = None
+                    newstream = io.TextIOWrapper(output_stream.detach(),
+                                                 line_buffering=line_buffer,
+                                                 **args)
+                    output_stream = newstream
+                    if use_stdout:
+                        sys.stdout = newstream
         yield output_stream
         return
 
@@ -242,7 +270,6 @@ def pager(output_stream, line_buffer=False):
     pager = subprocess.Popen(['less', '-R', '-F'],
                              stdin=subprocess.PIPE)
     try:
-        import io
         with io.TextIOWrapper(pager.stdin,
                               line_buffering=line_buffer,
                               errors='backslashreplace') as stream:
@@ -273,8 +300,9 @@ def main():
     filters = get_filters(options)
     with input_stream(options.logfile) as logstream:
         line_buffer = not logstream.seekable()
-        with pager(sys.stdout, line_buffer) as output_stream:
-            process_log(logstream, filters, output_stream, sys.stdout.isatty())
+        highlight = sys.stdout.isatty()
+        with pager(line_buffer=line_buffer) as output_stream:
+            process_log(logstream, filters, output_stream, highlight)
     return 0
 
 
