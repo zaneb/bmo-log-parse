@@ -311,6 +311,6 @@ if __name__ == '__main__':
     try:
         return_code = main()
     except KeyboardInterrupt:
-        sys.exit(1)
+        sys.exit(130)
     else:
         sys.exit(return_code)
