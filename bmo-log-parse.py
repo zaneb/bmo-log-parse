@@ -24,6 +24,7 @@ import datetime
 import functools
 import itertools
 import json
+import re
 import sys
 
 try:
@@ -49,11 +50,18 @@ LEVELS = (
 )
 
 
+_matcher = re.compile(r'''
+(?:
+20[0-9]{2}-[0-1][0-9]-[0-3][0-9]                # ISO8601 date
+T[0-2][0-9]:[0-5][0-9]:[0-6][0-9](?:\.[0-9]+)Z  # ISO8601 time
+[ ])?                                           # drop any leading datetime
+(\{.*?\})                                       # match JSON object
+\n''', re.VERBOSE).fullmatch
+
+
 def read_records(logstream):
-    """Iterate over all Records in a stream."""
-    return map(Record,
-               filter(lambda l: l.startswith('{'),
-                      logstream))
+    return (Record(m.group(1)) for m in map(_matcher, logstream)
+            if m is not None)
 
 
 class Record:
