@@ -36,11 +36,17 @@ else:
 
 
 LOGGERS = (
-    COMMAND, RUNTIME,
-    CONTROLLER, PROVISIONER,
+    COMMAND,
+    RUNTIME,
+    CONTROLLER,
+    PROVISIONER,
 ) = (
-    'cmd', 'controller-runtime',
-    'baremetalhost', 'baremetalhost_ironic',
+    {'cmd', 'setup'},
+    {'controller-runtime'},
+    {'baremetalhost',
+     'controllers.BareMetalHost',
+     'controllers.BareMetalHost.host_config_data'},
+    {'baremetalhost_ironic', 'provisioner.ironic'},
 )
 
 LEVELS = (
@@ -84,7 +90,7 @@ class Record:
         self.message = data.pop(self.MESSAGE)
         self.context = None
         self.name = (data.get('Request.Name')
-                        if self.logger == CONTROLLER
+                        if self.logger in CONTROLLER
                         else data.get('host'))
         if 'stacktrace' in data:
             self.name = data['request'].split('/', 1)[1]
@@ -156,9 +162,9 @@ def get_filters(options):
     if options.error:
         yield Filter(filter, lambda r: r.level == ERROR)
     if options.controller_only:
-        yield Filter(filter, lambda r: r.logger == CONTROLLER)
+        yield Filter(filter, lambda r: r.logger in CONTROLLER)
     if options.provisioner_only:
-        yield Filter(filter, lambda r: r.logger == PROVISIONER)
+        yield Filter(filter, lambda r: r.logger in PROVISIONER)
     if options.name is not None:
         name = options.name
         yield Filter(filter, lambda r: r.name == name)
