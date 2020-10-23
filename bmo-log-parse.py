@@ -27,6 +27,8 @@ import json
 import re
 import sys
 
+import autopage
+
 try:
     import yaml
 except ImportError:
@@ -240,72 +242,6 @@ def input_stream(filename):
         return open(filename)
 
 
-@contextlib.contextmanager
-def pager(output_stream=None, line_buffer=False):
-    """
-    A context manager that launches a pager for the output if appropriate.
-
-    If the output stream is not to the console (i.e. it is piped or
-    redirected), no pager will be launched.
-    """
-    use_stdout = output_stream is None
-    if use_stdout:
-        output_stream = sys.stdout
-
-    if not output_stream.isatty():
-        if line_buffer:
-            # Python 3.7 & later
-            if hasattr(output_stream, 'reconfigure'):
-                output_stream.reconfigure(line_buffering=line_buffer)
-            else:
-                import io
-                # Pure-python I/O
-                if hasattr(output_stream, '_line_buffering'):
-                    output_stream._line_buffering = line_buffer
-                    output_stream.flush()
-                # Native I/O on Python 3.6
-                elif (isinstance(output_stream, io.TextIOWrapper) and
-                        not output_stream.line_buffering):
-                    args = {
-                        'encoding': output_stream.encoding,
-                        'errors': output_stream.errors,
-                    }
-                    if use_stdout:
-                        sys.stdout = None
-                    newstream = io.TextIOWrapper(output_stream.detach(),
-                                                 line_buffering=line_buffer,
-                                                 **args)
-                    output_stream = newstream
-                    if use_stdout:
-                        sys.stdout = newstream
-        yield output_stream
-        return
-
-    import subprocess
-    streams = {} if use_stdout else {'stdout': output_stream}
-    streams['stdin'] = subprocess.PIPE
-    args = ['--RAW-CONTROL-CHARS']  # Enable colour output
-    if not line_buffer:
-        args.append('--quit-if-one-screen')
-    pager = subprocess.Popen(['less'] + args,
-                             bufsize=1 if line_buffer else -1,
-                             errors='backslashreplace',
-                             **streams)
-    try:
-        with contextlib.closing(pager.stdin) as stream:
-            yield stream
-    except OSError:
-        pass
-    finally:
-        while True:
-            try:
-                pager.wait()
-                break
-            except KeyboardInterrupt:
-                # Pager ignores Ctrl-C, so we should too
-                pass
-
-
 def main():
     """Run the log parser, reading options from the command line."""
     try:
@@ -320,11 +256,14 @@ def main():
             sys.stderr.write('No input found.\n')
             return 1
 
-        line_buffer = not logstream.seekable()
-        highlight = sys.stdout.isatty()
-        with pager(line_buffer=line_buffer) as output_stream:
+        line_buffer = autopage.line_buffer_from_input(logstream)
+        error_strategy = autopage.ErrorStrategy.BACKSLASH_REPLACE
+        pager = autopage.AutoPager(line_buffering=line_buffer,
+                                   errors=error_strategy)
+        highlight = pager.to_terminal()
+        with pager as output_stream:
             process_log(logstream, filters, output_stream, highlight)
-    return 0
+        return pager.exit_code()
 
 
 if __name__ == '__main__':

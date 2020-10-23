@@ -1,1 +1,2 @@
+autopage
 PyYAML<6.0
