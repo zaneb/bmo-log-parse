@@ -255,12 +255,13 @@ I0513 14:23:52.882595       1 leaderelection.go:251] successfully acquired lease
 {"level":"info","ts":1589380774.8010514,"logger":"baremetalhost_ironic","msg":"changing provisioning state","host":"bsr22ar07c018","current":"enroll","existing target":"","new target":"manage"}
 {"level":"info","ts":1589380774.8608532,"logger":"baremetalhost","msg":"response from validate","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"registering","provResult":{"Dirty":true,"RequeueAfter":10000000000,"ErrorMessage":""}}
 {"level":"info","ts":1589380774.8704467,"logger":"baremetalhost","msg":"done","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"registering","requeue":true,"after":10}
+{"level":"info","ts":1607045743.4722486,"msg":"Operator Concurrency will be set to a default value of 3"}
 """
 
     def test_read_records(self):
         input_stream = io.StringIO(self.log)
         records = list(bmlp.read_records(input_stream))
-        self.assertEqual(13, len(records))
+        self.assertEqual(14, len(records))
         for r in records:
             self.assertIsInstance(r, bmlp.Record)
 
@@ -270,7 +271,7 @@ I0513 14:23:52.882595       1 leaderelection.go:251] successfully acquired lease
         bmlp.process_log(input_stream, [], output_stream)
         output_stream.seek(0)
         output = output_stream.readlines()
-        self.assertEqual(13, len(output))
+        self.assertEqual(14, len(output))
         for l in output:
             self.assertTrue(l.startswith('2020-'))
 
@@ -293,6 +294,7 @@ class TestReadWithTimestamps(TestRead):
 2020-05-13T14:39:34.8010514Z {"level":"info","ts":1589380774.8010514,"logger":"baremetalhost_ironic","msg":"changing provisioning state","host":"bsr22ar07c018","current":"enroll","existing target":"","new target":"manage"}
 2020-05-13T14:39:34.8608532Z {"level":"info","ts":1589380774.8608532,"logger":"baremetalhost","msg":"response from validate","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"registering","provResult":{"Dirty":true,"RequeueAfter":10000000000,"ErrorMessage":""}}
 2020-05-13T14:39:34.8704467Z {"level":"info","ts":1589380774.8704467,"logger":"baremetalhost","msg":"done","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"registering","requeue":true,"after":10}
+2020-12-04T01:35:43.472254864Z {"level":"info","ts":1607045743.4722486,"msg":"Operator Concurrency will be set to a default value of 3"}
 """
 
 

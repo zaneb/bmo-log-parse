@@ -41,7 +41,7 @@ LOGGERS = (
     CONTROLLER,
     PROVISIONER,
 ) = (
-    {'cmd', 'setup'},
+    {'cmd', 'setup', ''},
     {'controller-runtime'},
     {'baremetalhost',
      'controllers.BareMetalHost',
@@ -86,7 +86,7 @@ class Record:
         ts = float(data.pop(self.TIMESTAMP))
         utc = datetime.timezone.utc
         self.timestamp = datetime.datetime.fromtimestamp(ts, tz=utc)
-        self.logger = data.pop(self.LOGGER).split('.', 1)[0]
+        self.logger = data.pop(self.LOGGER, '').split('.', 1)[0]
         self.message = data.pop(self.MESSAGE)
         self.context = None
         self.name = (data.get('Request.Name')
