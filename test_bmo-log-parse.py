@@ -33,7 +33,7 @@ class RecordTest(unittest.TestCase):
         l = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
         r = bmlp.Record(l)
 
-        self.assertEqual(bmlp.COMMAND, r.logger)
+        self.assertIn(r.logger, bmlp.COMMAND)
 
     def test_name(self):
         c = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
@@ -281,8 +281,8 @@ class TestReadWithTimestamps(TestRead):
 2020-05-13T14:23:52.5167677Z {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":"Go Version: go1.13.8"}
 2020-05-13T14:23:52.8728050Z {"level":"info","ts":1589379832.872805,"logger":"controller-runtime.metrics","msg":"metrics server is starting to listen","addr":"127.0.0.1:8085"}
 2020-05-13T14:23:52.8731490Z {"level":"info","ts":1589379832.873149,"logger":"baremetalhost_ironic","msg":"ironic settings","endpoint":"http://172.30.0.47:6385/v1/","inspectorEndpoint":"http://172.30.0.47:5050/v1/","deployKernelURL":"http://172.30.0.47:6180/images/ironic-python-agent.kernel","deployRamdiskURL":"http://172.30.0.47:6180/images/ironic-python-agent.initramfs"}
-I0513 14:23:52.873384       1 leaderelection.go:241] attempting to acquire leader lease  metal3/baremetal-operator...
-I0513 14:23:52.882595       1 leaderelection.go:251] successfully acquired lease metal3/baremetal-operator
+2020-05-13T14:23:52.8733840Z I0513 14:23:52.873384       1 leaderelection.go:241] attempting to acquire leader lease  metal3/baremetal-operator...
+2020-05-13T14:23:52.8825951Z I0513 14:23:52.882595       1 leaderelection.go:251] successfully acquired lease metal3/baremetal-operator
 2020-05-13T14:39:34.1207273Z {"level":"info","ts":1589380774.1207273,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"ahost"}
 2020-05-13T14:39:34.1207843Z {"level":"info","ts":1589380774.1207843,"logger":"baremetalhost","msg":"adding finalizer","Request.Namespace":"metal3","Request.Name":"ahost","existingFinalizers":[],"newValue":"baremetalhost.metal3.io"}
 2020-05-13T14:39:34.1284160Z {"level":"info","ts":1589380774.1288416,"logger":"baremetalhost","msg":"changing provisioning state","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"","old":"","new":"registering"}
