@@ -316,6 +316,10 @@ def main():
 
     filters = get_filters(options)
     with input_stream(options.logfile) as logstream:
+        if logstream.isatty():
+            sys.stderr.write('No input found.\n')
+            return 1
+
         line_buffer = not logstream.seekable()
         highlight = sys.stdout.isatty()
         with pager(line_buffer=line_buffer) as output_stream:
