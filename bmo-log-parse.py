@@ -43,10 +43,8 @@ LOGGERS = (
 ) = (
     {'cmd', 'setup', ''},
     {'controller-runtime'},
-    {'baremetalhost',
-     'controllers.BareMetalHost',
-     'controllers.BareMetalHost.host_config_data'},
-    {'baremetalhost_ironic', 'provisioner.ironic'},
+    {'controller', 'baremetalhost', 'controllers'},
+    {'baremetalhost_ironic', 'provisioner'},
 )
 
 LEVELS = (
