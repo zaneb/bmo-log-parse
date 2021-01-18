@@ -87,15 +87,19 @@ class Record:
         self.logger = data.pop(self.LOGGER, '').split('.', 1)[0]
         self.message = data.pop(self.MESSAGE)
         self.context = None
-        self.name = (data.get('Request.Name')
-                        if self.logger in CONTROLLER
-                        else data.get('host'))
+        name = (data.get('baremetalhost',
+                         data.get('name',
+                                  data.get('Request.Name')))
+                if self.logger in CONTROLLER
+                else data.get('host'))
         if 'stacktrace' in data:
-            self.name = data['request'].split('/', 1)[1]
+            if name is None:
+                name = data['request']
             self.context = data.pop('stacktrace')
         elif (self.message == 'received introspection data' and
                 'data' in data):
             self.context = pretty_print(data.pop('data'))
+        self.name = name.split('/', 1)[-1] if name is not None else None
         data.pop('errorVerbose', None)
         self.data = data
 
