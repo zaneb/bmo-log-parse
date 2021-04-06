@@ -138,7 +138,7 @@ class RecordTest(unittest.TestCase):
              "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r = bmlp.Record(e)
 
-        self.assertSetEqual({'controller', 'request', 'error'},
+        self.assertSetEqual({'controller', 'request'},
                             set(r.data.keys()))
 
     def test_format(self):
@@ -209,8 +209,8 @@ class RecordTest(unittest.TestCase):
         self.assertEqual(
             '2020-05-13T14:44:15.163 Reconciler error {'
             "controller: 'metal3-baremetalhost-controller', "
-            "request: 'metal3/somehost', "
-            "error: 'failed to save host status after \"ready\".'}\n"
+            "request: 'metal3/somehost'}\n"
+            'failed to save host status after "ready".\n'
             'github.com/go-logr/zapr.(*zapLogger).Error\n'
             '\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128',
             r.format())
@@ -253,6 +253,7 @@ class RecordTest(unittest.TestCase):
              "msg":"Reconciler error",
              "controller":"metal3-baremetalhost-controller",
              "request":"metal3/somehost",
+             "error":"failed to save host status after \"ready\".",
              "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
              "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r = bmlp.Record(l)
@@ -262,6 +263,7 @@ class RecordTest(unittest.TestCase):
             '\033[31mReconciler error\033[91m {'
             "controller: 'metal3-baremetalhost-controller', "
             "request: 'metal3/somehost'}\033[39m\n"
+            '\033[31mfailed to save host status after "ready".\033[39m\n'
             '\033[90mgithub.com/go-logr/zapr.(*zapLogger).Error\033[39m\n'
             '\033[90m\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/'
             'zapr.go:128\033[39m',

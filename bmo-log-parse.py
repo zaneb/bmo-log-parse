@@ -124,6 +124,7 @@ class Record:
                 'data' in data):
             self.context = pretty_print(data.pop('data'))
         self.name = name.split('/', 1)[-1] if name is not None else None
+        self.error = data.pop('error', None) if self.level == ERROR else None
         data.pop('errorVerbose', None)
         self.data = data
 
@@ -150,6 +151,9 @@ class Record:
         else:
             if highlight:
                 extra_data = esc[2]
+        if self.error is not None:
+            err = f'{esc[1]}{self.error}{esc[2]}'
+            extra_data = '\n'.join([extra_data, err])
         if self.context is not None:
             ct = self.context
             if highlight:
