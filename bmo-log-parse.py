@@ -145,14 +145,7 @@ def process_log(input_stream, filters, output_stream=sys.stdout,
                 highlight=False):
     """Process the input log stream and write to an output stream."""
     for r in filtered_records(input_stream, filters):
-        try:
-            output_stream.write(f'{r.format(highlight)}\n')
-        except BrokenPipeError:
-            break
-    try:
-        output_stream.flush()
-    except BrokenPipeError:
-        pass
+        output_stream.write(f'{r.format(highlight)}\n')
 
 
 def get_filters(options):
