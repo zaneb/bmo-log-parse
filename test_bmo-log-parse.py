@@ -56,7 +56,7 @@ class RecordTest(unittest.TestCase):
              "deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",
              "deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}
         ironic = bmlp.Record(i)
-        self.assertIsNone(runtime.name)
+        self.assertIsNone(ironic.name)
 
         ip = {"level":"info","ts":1589380774.1379526,
               "logger":"baremetalhost_ironic",
@@ -407,13 +407,13 @@ class TestFilter(unittest.TestCase):
         r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(4, len(r))
 
-    def test_filter_combine(self):
+    def test_filter_combine_1(self):
         o = bmlp.get_options(['--name=foo', '--error', '--controller-only'])
         f = bmlp.get_filters(o)
         r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(1, len(r))
 
-    def test_filter_combine(self):
+    def test_filter_combine_2(self):
         o = bmlp.get_options(['--name=foo', '--start=2020-05-13T14:39:35'])
         f = bmlp.get_filters(o)
         r = list(bmlp.filtered_records(self.stream, f))
