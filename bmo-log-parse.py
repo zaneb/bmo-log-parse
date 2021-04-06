@@ -235,18 +235,29 @@ def input_stream(filename):
         return open(filename)
 
 
+def _report_error(message, stream=None):
+    if stream is None:
+        stream = sys.stderr
+    colour = stream.isatty()
+    if colour:
+        line = f'\033[93m{message}\033[39m\n'
+    else:
+        line = f'{message}\n'
+    stream.write(line)
+
+
 def main():
     """Run the log parser, reading options from the command line."""
     try:
         options = get_options()
     except Exception as exc:
-        sys.stderr.write(f'{exc}\n')
+        _report_error(str(exc))
         return 1
 
     filters = get_filters(options)
     with input_stream(options.logfile) as logstream:
         if logstream.isatty():
-            sys.stderr.write('No input found.\n')
+            _report_error('No input found.')
             return 1
 
         line_buffer = autopage.line_buffer_from_input(logstream)
