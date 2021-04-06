@@ -8,6 +8,8 @@ bmlp = importlib.import_module('bmo-log-parse')
 
 
 class RecordTest(unittest.TestCase):
+    maxDiff = None
+
     def test_timestamp(self):
         l = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         r = bmlp.Record(l)
@@ -164,6 +166,33 @@ class RecordTest(unittest.TestCase):
             "deployRamdiskURL: 'http://172.30.0.47:6180/images/initramfs'}",
             r.format())
 
+    def test_format_highlight(self):
+        l = {"level":"info","ts":1589379832.873149,
+             "logger":"baremetalhost_ironic","msg":"ironic settings",
+             "endpoint":"http://172.30.0.47:6385/v1/",
+             "inspectorEndpoint":"http://172.30.0.47:5050/v1/",
+             "deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",
+             "deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}
+        r = bmlp.Record(l)
+
+        self.assertEqual(
+            '\033[37m2020-05-13T14:23:52.873 \033[39mironic settings\033[37m {'
+            "endpoint: 'http://172.30.0.47:6385/v1/', "
+            "inspectorEndpoint: 'http://172.30.0.47:5050/v1/', "
+            "deployKernelURL: 'http://172.30.0.47:6180/images/ipa.kernel', "
+            "deployRamdiskURL: 'http://172.30.0.47:6180/images/initramfs'}"
+            "\033[39m",
+            r.format(highlight=True))
+
+    def test_format_noextra_highlight(self):
+        l = {"level":"info","ts":1589379832.873149,
+             "logger":"baremetalhost_ironic","msg":"ironic settings"}
+        r = bmlp.Record(l)
+
+        self.assertEqual(
+            '\033[37m2020-05-13T14:23:52.873 \033[39mironic settings\033[39m',
+            r.format(highlight=True))
+
     def test_format_stacktrace(self):
         e = {"level":"error","ts":1589381055.1638162,
              "logger":"controller-runtime.controller",
@@ -194,7 +223,7 @@ class RecordTest(unittest.TestCase):
         r = bmlp.Record(e)
 
         self.assertEqual(
-            '\033[91m2020-05-13T14:44:15.163 Reconciler error '
+            '\033[91m2020-05-13T14:44:15.163 \033[31mReconciler error\033[91m '
             "{request: 'metal3/somehost'}\033[39m",
             r.format(highlight=True))
 
@@ -209,9 +238,10 @@ class RecordTest(unittest.TestCase):
         r = bmlp.Record(l)
 
         self.assertEqual(
-            '2020-05-13T14:44:15.163 Reconciler error {'
+            '\033[37m2020-05-13T14:44:15.163 '
+            '\033[39mReconciler error\033[37m {'
             "controller: 'metal3-baremetalhost-controller', "
-            "request: 'metal3/somehost'}\n"
+            "request: 'metal3/somehost'}\033[39m\n"
             '\033[90mgithub.com/go-logr/zapr.(*zapLogger).Error\033[39m\n'
             '\033[90m\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/'
             'zapr.go:128\033[39m',
@@ -228,7 +258,8 @@ class RecordTest(unittest.TestCase):
         r = bmlp.Record(l)
 
         self.assertEqual(
-            '\033[91m2020-05-13T14:44:15.163 Reconciler error {'
+            '\033[91m2020-05-13T14:44:15.163 '
+            '\033[31mReconciler error\033[91m {'
             "controller: 'metal3-baremetalhost-controller', "
             "request: 'metal3/somehost'}\033[39m\n"
             '\033[90mgithub.com/go-logr/zapr.(*zapLogger).Error\033[39m\n'

@@ -133,22 +133,30 @@ class Record:
 
         :param highlight: Use ANSI escape codes to set colours.
         """
-        esc = (('\033[91m', '\033[39m')
-                   if highlight and self.level == ERROR
-                   else ('', ''))
+        if highlight:
+            if self.level == ERROR:
+                esc = ('\033[91m', '\033[31m', '\033[39m')
+            else:
+                esc = ('\033[37m', '\033[39m', '\033[39m')
+        else:
+            esc = ('', '', '')
 
         extra_data = ''
         if self.data:
-            items = ', '.join(f'{k}: {repr(v)}'
-                              for k, v in self.data.items())
-            extra_data = f' {{{items}}}{esc[1]}'
+            items = ', '.join(f'{k}: {repr(v)}' for k, v in self.data.items())
+            extra_data = f' {{{items}}}'
+            if highlight:
+                extra_data = f'{esc[0]}{extra_data}{esc[2]}'
+        else:
+            if highlight:
+                extra_data = esc[2]
         if self.context is not None:
             ct = self.context
             if highlight:
                 ct = '\n'.join(f'\033[90m{l}\033[39m' for l in ct.splitlines())
             extra_data = '\n'.join([extra_data, ct])
         timestamp = self.timestamp.isoformat(timespec='milliseconds')[:-6]
-        return f'{esc[0]}{timestamp} {self.message}{extra_data}'
+        return f'{esc[0]}{timestamp} {esc[1]}{self.message}{extra_data}'
 
     def __str__(self):
         return self.format()
