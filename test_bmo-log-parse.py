@@ -418,3 +418,26 @@ class TestFilter(unittest.TestCase):
         f = bmlp.get_filters(o)
         r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(3, len(r))
+
+
+class ListNamesTest(unittest.TestCase):
+    log = """
+{"level":"info","ts":1589380774.1207273,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
+{"level":"error","ts":1589380774.1258268,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"bar"}
+{"level":"info","ts":1589380774.1339087,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
+{"level":"info","ts":1589380774.1378222,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
+{"level":"info","ts":1589380774.870522,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"bar"}
+{"level":"error","ts":1589380775.0094552,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
+{"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"foo"}
+{"level":"info","ts":1589380775.070861,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"bar"}
+{"level":"info","ts":1589380775.099308,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
+{"level":"error","ts":1589380776.36193,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
+"""
+
+    def test_list_host_names(self):
+        input_stream = io.StringIO(self.log)
+        output_stream = io.StringIO()
+        bmlp.list_host_names(input_stream, [], output_stream)
+        output_stream.seek(0)
+        output = output_stream.readlines()
+        self.assertListEqual(['foo\n', 'bar\n', 'baz\n'], output)

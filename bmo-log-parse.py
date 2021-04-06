@@ -112,8 +112,8 @@ class Record:
         self.message = data.pop(self.MESSAGE)
         self.context = None
         name = (data.get('baremetalhost',
-                         data.get('name',
-                                  data.get('Request.Name')))
+                         data.get('Request.Name',
+                                  data.get('name')))
                 if self.logger in CONTROLLER
                 else data.get('host'))
         if 'stacktrace' in data:
@@ -176,6 +176,14 @@ def process_log(input_stream, filters, output_stream=sys.stdout,
     """Process the input log stream and write to an output stream."""
     for r in filtered_records(input_stream, filters):
         output_stream.write(f'{r.format(highlight)}\n')
+
+
+def list_host_names(input_stream, filters, output_stream=sys.stdout):
+    seen = set()
+    for r in filtered_records(input_stream, filters):
+        if r.name not in seen and r.name is not None:
+            output_stream.write(f'{r.name}\n')
+            seen.add(r.name)
 
 
 def get_filters(options):
@@ -246,6 +254,9 @@ def get_options(args=None):
                         type=parse_datetime,
                         help='Stop reading at a given time')
 
+    parser.add_argument('--list-names', action='store_true',
+                        help='List the names of hosts in the log')
+
     return parser.parse_args(args)
 
 
@@ -297,7 +308,10 @@ def main():
         highlight = pager.to_terminal()
         try:
             with pager as output_stream:
-                process_log(logstream, filters, output_stream, highlight)
+                if options.list_names:
+                    list_host_names(logstream, filters, output_stream)
+                else:
+                    process_log(logstream, filters, output_stream, highlight)
         except KeyboardInterrupt:
             pass
         except ParseException as exc:
