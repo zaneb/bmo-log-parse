@@ -65,9 +65,32 @@ T[0-2][0-9]:[0-5][0-9]:[0-6][0-9](?:\.[0-9]+)Z  # ISO8601 time
 \n''', re.VERBOSE).fullmatch
 
 
+class ParseException(Exception):
+    def __init__(self, error, match, lineno=None):
+        self.err_msg = error.msg
+        self.lineno = lineno
+        self.column = error.colno + match.start(1)
+        self.line = match.group(0)
+
+        ln = f'line {self.lineno}, ' if self.lineno is not None else ''
+        super().__init__(f'Record parse error: {self.err_msg} '
+                         f'(at {ln}column {self.column}): {self.line}')
+
+
+def _parse_record(m):
+    i, match = m
+    if match is None:
+        return None
+    try:
+        return json.loads(match.group(1))
+    except json.decoder.JSONDecodeError as exc:
+        raise ParseException(exc, match, i)
+
+
 def read_records(logstream):
-    return (Record(m.group(1)) for m in map(_matcher, logstream)
-            if m is not None)
+    return (Record(p) for p in map(_parse_record, enumerate(map(_matcher,
+                                                                logstream)))
+            if p is not None)
 
 
 class Record:
@@ -79,9 +102,8 @@ class Record:
         'level', 'ts', 'logger', 'msg',
     )
 
-    def __init__(self, line):
+    def __init__(self, data):
         """Initialise from the (JSON) log text."""
-        data = json.loads(line)
         self.level = data.pop(self.LEVEL)
         ts = float(data.pop(self.TIMESTAMP))
         utc = datetime.timezone.utc
@@ -265,15 +287,15 @@ def main():
         pager = autopage.AutoPager(line_buffering=line_buffer,
                                    errors=error_strategy)
         highlight = pager.to_terminal()
-        with pager as output_stream:
-            process_log(logstream, filters, output_stream, highlight)
+        try:
+            with pager as output_stream:
+                process_log(logstream, filters, output_stream, highlight)
+        except KeyboardInterrupt:
+            pass
+        except ParseException as exc:
+            _report_error(str(exc))
         return pager.exit_code()
 
 
 if __name__ == '__main__':
-    try:
-        return_code = main()
-    except KeyboardInterrupt:
-        sys.exit(130)
-    else:
-        sys.exit(return_code)
+    sys.exit(main())

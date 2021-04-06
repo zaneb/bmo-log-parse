@@ -9,7 +9,7 @@ bmlp = importlib.import_module('bmo-log-parse')
 
 class RecordTest(unittest.TestCase):
     def test_timestamp(self):
-        l = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
+        l = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         r = bmlp.Record(l)
 
         self.assertEqual(datetime.datetime(2020, 5, 13, 14, 23, 52, 516768,
@@ -21,84 +21,84 @@ class RecordTest(unittest.TestCase):
                          output.format().split(' ')[0])
 
     def test_level(self):
-        l = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
+        l = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         r1 = bmlp.Record(l)
         self.assertEqual(bmlp.INFO, r1.level)
 
-        l = '{"level":"error","ts":1589379832.5167677,"logger":"cmd","msg":""}'
+        l = {"level":"error","ts":1589379832.5167677,"logger":"cmd","msg":""}
         r2 = bmlp.Record(l)
         self.assertEqual(bmlp.ERROR, r2.level)
 
     def test_logger(self):
-        l = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
+        l = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         r = bmlp.Record(l)
 
         self.assertIn(r.logger, bmlp.COMMAND)
 
     def test_name(self):
-        c = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
+        c = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         cmd = bmlp.Record(c)
         self.assertIsNone(cmd.name)
 
-        r = ('{"level":"info","ts":1589379832.872805,'
-             '"logger":"controller-runtime.metrics",'
-             '"msg":"metrics server is starting to listen",'
-             '"addr":"127.0.0.1:8085"}')
+        r = {"level":"info","ts":1589379832.872805,
+             "logger":"controller-runtime.metrics",
+             "msg":"metrics server is starting to listen",
+             "addr":"127.0.0.1:8085"}
         runtime = bmlp.Record(r)
         self.assertIsNone(runtime.name)
 
-        i = ('{"level":"info","ts":1589379832.873149,'
-             '"logger":"baremetalhost_ironic","msg":"ironic settings",'
-             '"endpoint":"http://172.30.0.47:6385/v1/",'
-             '"inspectorEndpoint":"http://172.30.0.47:5050/v1/",'
-             '"deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",'
-             '"deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}')
+        i = {"level":"info","ts":1589379832.873149,
+             "logger":"baremetalhost_ironic","msg":"ironic settings",
+             "endpoint":"http://172.30.0.47:6385/v1/",
+             "inspectorEndpoint":"http://172.30.0.47:5050/v1/",
+             "deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",
+             "deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}
         ironic = bmlp.Record(i)
         self.assertIsNone(runtime.name)
 
-        ip = ('{"level":"info","ts":1589380774.1379526,'
-              '"logger":"baremetalhost_ironic",'
-              '"msg":"validating management access","host":"somehost"}')
+        ip = {"level":"info","ts":1589380774.1379526,
+              "logger":"baremetalhost_ironic",
+              "msg":"validating management access","host":"somehost"}
         ironic_prov = bmlp.Record(ip)
         self.assertEqual('somehost', ironic_prov.name)
 
-        b = ('{"level":"info","ts":1589380774.1207273,'
-             '"logger":"baremetalhost","msg":"Reconciling BareMetalHost",'
-             '"Request.Namespace":"metal3","Request.Name":"somehost"}')
+        b = {"level":"info","ts":1589380774.1207273,
+             "logger":"baremetalhost","msg":"Reconciling BareMetalHost",
+             "Request.Namespace":"metal3","Request.Name":"somehost"}
         bmh = bmlp.Record(b)
         self.assertEqual('somehost', bmh.name)
 
-        e = ('{"level":"error","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"controller":"metal3-baremetalhost-controller",'
-             '"request":"metal3/somehost",'
-             r'"error":"failed to save host status after \"ready\".",'
-             r'"stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n'
-             r'\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}')
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "error":"failed to save host status after \"ready\".",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         err = bmlp.Record(e)
         self.assertEqual('somehost', err.name)
 
     def test_message(self):
-        l = ('{"level":"info","ts":1589379832.5167677,"logger":"cmd",'
-              '"msg":"Go Version: go1.13.8"}')
+        l = {"level":"info","ts":1589379832.5167677,"logger":"cmd",
+             "msg":"Go Version: go1.13.8"}
         r = bmlp.Record(l)
 
         self.assertEqual('Go Version: go1.13.8', r.message)
 
     def test_stacktrace(self):
-        l = '{"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}'
+        l = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         r1 = bmlp.Record(l)
         self.assertIsNone(r1.context)
 
-        e = ('{"level":"error","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"controller":"metal3-baremetalhost-controller",'
-             '"request":"metal3/somehost",'
-             r'"error":"failed to save host status after \"ready\".",'
-             r'"stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n'
-             r'\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}')
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "error":"failed to save host status after \"ready\".",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r2 = bmlp.Record(e)
         self.assertEqual('github.com/go-logr/zapr.(*zapLogger).Error\n'
                          '\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/'
@@ -106,55 +106,54 @@ class RecordTest(unittest.TestCase):
                          r2.context)
 
     def test_hardware_details(self):
-        l = ('{"level":"info","ts":1590157176.3108344,'
-             '"logger":"baremetalhost_ironic",'
-             '"msg":"received introspection data",'
-             '"data":{"cpu":{"architecture":"x86_64","count":1}}'
-             '}')
+        l = {"level":"info","ts":1590157176.3108344,
+             "logger":"baremetalhost_ironic",
+             "msg":"received introspection data",
+             "data":{"cpu":{"architecture":"x86_64","count":1}}}
         r = bmlp.Record(l)
         self.assertEqual('cpu:\n  architecture: x86_64\n  count: 1\n',
                          r.context)
 
     def test_data(self):
-        b = ('{"level":"info","ts":1589380774.1207273,'
-             '"logger":"baremetalhost","msg":"Reconciling BareMetalHost",'
-             '"Request.Namespace":"metal3","Request.Name":"somehost"}')
+        b = {"level":"info","ts":1589380774.1207273,
+             "logger":"baremetalhost","msg":"Reconciling BareMetalHost",
+             "Request.Namespace":"metal3","Request.Name":"somehost"}
         r = bmlp.Record(b)
 
         self.assertSetEqual({'Request.Namespace', 'Request.Name'},
                             set(r.data.keys()))
 
     def test_error_data(self):
-        e = ('{"level":"error","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"controller":"metal3-baremetalhost-controller",'
-             '"request":"metal3/somehost",'
-             r'"error":"failed to save host status after \"ready\".",'
-             '"errorVerbose":"The error message and the stack trace '
-             'concatenated for no good reason",'
-             r'"stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n'
-             r'\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}')
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "error":"failed to save host status after \"ready\".",
+             "errorVerbose":"The error message and the stack trace "
+             "concatenated for no good reason",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r = bmlp.Record(e)
 
         self.assertSetEqual({'controller', 'request', 'error'},
                             set(r.data.keys()))
 
     def test_format(self):
-        l = ('{"level":"info","ts":1589379832.5167677,"logger":"cmd",'
-              '"msg":"Go Version: go1.13.8"}')
+        l = {"level":"info","ts":1589379832.5167677,"logger":"cmd",
+             "msg":"Go Version: go1.13.8"}
         r = bmlp.Record(l)
 
         self.assertEqual('2020-05-13T14:23:52.516 Go Version: go1.13.8',
                          r.format())
 
     def test_format_data(self):
-        l = ('{"level":"info","ts":1589379832.873149,'
-             '"logger":"baremetalhost_ironic","msg":"ironic settings",'
-             '"endpoint":"http://172.30.0.47:6385/v1/",'
-             '"inspectorEndpoint":"http://172.30.0.47:5050/v1/",'
-             '"deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",'
-             '"deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}')
+        l = {"level":"info","ts":1589379832.873149,
+             "logger":"baremetalhost_ironic","msg":"ironic settings",
+             "endpoint":"http://172.30.0.47:6385/v1/",
+             "inspectorEndpoint":"http://172.30.0.47:5050/v1/",
+             "deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",
+             "deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}
         r = bmlp.Record(l)
 
         self.assertEqual(
@@ -166,16 +165,16 @@ class RecordTest(unittest.TestCase):
             r.format())
 
     def test_format_stacktrace(self):
-        e = ('{"level":"error","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"controller":"metal3-baremetalhost-controller",'
-             '"request":"metal3/somehost",'
-             r'"error":"failed to save host status after \"ready\".",'
-             '"errorVerbose":"The error message and the stack trace '
-             'concatenated for no good reason",'
-             r'"stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n'
-             r'\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}')
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "error":"failed to save host status after \"ready\".",
+             "errorVerbose":"The error message and the stack trace "
+             "concatenated for no good reason",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r = bmlp.Record(e)
 
         self.assertEqual(
@@ -188,10 +187,10 @@ class RecordTest(unittest.TestCase):
             r.format())
 
     def test_format_error_highlight(self):
-        e = ('{"level":"error","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"request": "metal3/somehost"}')
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "request": "metal3/somehost"}
         r = bmlp.Record(e)
 
         self.assertEqual(
@@ -200,13 +199,13 @@ class RecordTest(unittest.TestCase):
             r.format(highlight=True))
 
     def test_format_stacktrace_highlight(self):
-        l = ('{"level":"info","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"controller":"metal3-baremetalhost-controller",'
-             '"request":"metal3/somehost",'
-             r'"stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n'
-             r'\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}')
+        l = {"level":"info","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r = bmlp.Record(l)
 
         self.assertEqual(
@@ -219,13 +218,13 @@ class RecordTest(unittest.TestCase):
             r.format(highlight=True))
 
     def test_format_error_stacktrace_highlight(self):
-        l = ('{"level":"error","ts":1589381055.1638162,'
-             '"logger":"controller-runtime.controller",'
-             '"msg":"Reconciler error",'
-             '"controller":"metal3-baremetalhost-controller",'
-             '"request":"metal3/somehost",'
-             r'"stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n'
-             r'\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}')
+        l = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         r = bmlp.Record(l)
 
         self.assertEqual(
