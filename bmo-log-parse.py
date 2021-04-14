@@ -111,19 +111,23 @@ class Record:
         self.logger = data.pop(self.LOGGER, '').split('.', 1)[0]
         self.message = data.pop(self.MESSAGE)
         self.context = None
-        name = (data.get('baremetalhost',
-                         data.get('Request.Name',
-                                  data.get('name')))
-                if self.logger in CONTROLLER
-                else data.get('host', '').replace('~', '/', 1) or None)
+        fq_name = (data.get('baremetalhost',
+                            data.get('Request.Name',
+                                     data.get('name')))
+                   if self.logger in CONTROLLER
+                   else data.get('host', '').replace('~', '/', 1) or None)
         if 'stacktrace' in data:
-            if name is None:
-                name = data['request']
+            if fq_name is None:
+                fq_name = data['request']
             self.context = data.pop('stacktrace')
         elif (self.message == 'received introspection data' and
                 'data' in data):
             self.context = pretty_print(data.pop('data'))
-        self.name = name.split('/', 1)[-1] if name is not None else None
+        ns_name = fq_name.split('/', 1) if fq_name is not None else (None,
+                                                                     None)
+        self.name = ns_name[-1]
+        self.namespace = data.get('Request.Namespace',
+                                  ns_name[0] if len(ns_name) > 1 else None)
         self.error = data.pop('error', None) if self.level == ERROR else None
         data.pop('errorVerbose', None)
         self.data = data
@@ -207,6 +211,9 @@ def get_filters(options):
     if options.name is not None:
         name = options.name
         yield Filter(filter, lambda r: r.name == name)
+    if options.namespace is not None:
+        namespace = options.namespace
+        yield Filter(filter, lambda r: r.namespace == namespace)
     if options.end is not None:
         end_time = options.end
         if end_time.tzinfo is None:
@@ -250,6 +257,8 @@ def get_options(args=None):
                         help='Include only logs at ERROR level')
     parser.add_argument('-n', '--name', default=None,
                         help='Filter by a particular host name')
+    parser.add_argument('--namespace', default=None,
+                        help='Filter by a particular host namespace')
 
     parser.add_argument('-s', '--start', default=None,
                         type=parse_datetime,

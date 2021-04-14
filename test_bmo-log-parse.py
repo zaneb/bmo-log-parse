@@ -87,6 +87,56 @@ class RecordTest(unittest.TestCase):
         err = bmlp.Record(e)
         self.assertEqual('somehost', err.name)
 
+    def test_namespace(self):
+        c = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
+        cmd = bmlp.Record(c)
+        self.assertIsNone(cmd.name)
+
+        r = {"level":"info","ts":1589379832.872805,
+             "logger":"controller-runtime.metrics",
+             "msg":"metrics server is starting to listen",
+             "addr":"127.0.0.1:8085"}
+        runtime = bmlp.Record(r)
+        self.assertIsNone(runtime.namespace)
+
+        i = {"level":"info","ts":1589379832.873149,
+             "logger":"baremetalhost_ironic","msg":"ironic settings",
+             "endpoint":"http://172.30.0.47:6385/v1/",
+             "inspectorEndpoint":"http://172.30.0.47:5050/v1/",
+             "deployKernelURL":"http://172.30.0.47:6180/images/ipa.kernel",
+             "deployRamdiskURL":"http://172.30.0.47:6180/images/initramfs"}
+        ironic = bmlp.Record(i)
+        self.assertIsNone(ironic.namespace)
+
+        ip = {"level":"info","ts":1589380774.1379526,
+              "logger":"baremetalhost_ironic",
+              "msg":"validating management access","host":"somehost"}
+        ironic_prov = bmlp.Record(ip)
+        self.assertEqual(None, ironic_prov.namespace)
+
+        ip_ns = {"level":"info","ts":1589380774.1379526,
+                 "logger":"baremetalhost_ironic",
+                 "msg":"validating management access","host":"metal3~somehost"}
+        ironic_prov_ns = bmlp.Record(ip_ns)
+        self.assertEqual('metal3', ironic_prov_ns.namespace)
+
+        b = {"level":"info","ts":1589380774.1207273,
+             "logger":"baremetalhost","msg":"Reconciling BareMetalHost",
+             "Request.Namespace":"metal3","Request.Name":"somehost"}
+        bmh = bmlp.Record(b)
+        self.assertEqual('metal3', bmh.namespace)
+
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.controller",
+             "msg":"Reconciler error",
+             "controller":"metal3-baremetalhost-controller",
+             "request":"metal3/somehost",
+             "error":"failed to save host status after \"ready\".",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
+        err = bmlp.Record(e)
+        self.assertEqual('metal3', err.namespace)
+
     def test_message(self):
         l = {"level":"info","ts":1589379832.5167677,"logger":"cmd",
              "msg":"Go Version: go1.13.8"}
@@ -365,7 +415,7 @@ class TestFilter(unittest.TestCase):
 {"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"metal3~foo"}
 {"level":"info","ts":1589380775.070861,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"bar"}
 {"level":"info","ts":1589380775.099308,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
-{"level":"error","ts":1589380776.36193,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
+{"level":"error","ts":1589380776.36193,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal4","Request.Name":"foo"}
 """
 
     def setUp(self):
@@ -380,6 +430,11 @@ class TestFilter(unittest.TestCase):
         f = bmlp.get_filters(bmlp.get_options(['--name=foo']))
         r1 = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(4, len(r1))
+
+    def test_filter_namespace(self):
+        f = bmlp.get_filters(bmlp.get_options(['--namespace=metal3']))
+        r1 = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(8, len(r1))
 
     def test_filter_error(self):
         f = bmlp.get_filters(bmlp.get_options(['--error']))
