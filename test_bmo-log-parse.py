@@ -64,6 +64,12 @@ class RecordTest(unittest.TestCase):
         ironic_prov = bmlp.Record(ip)
         self.assertEqual('somehost', ironic_prov.name)
 
+        ip_ns = {"level":"info","ts":1589380774.1379526,
+                 "logger":"baremetalhost_ironic",
+                 "msg":"validating management access","host":"metal3~somehost"}
+        ironic_prov_ns = bmlp.Record(ip_ns)
+        self.assertEqual('somehost', ironic_prov_ns.name)
+
         b = {"level":"info","ts":1589380774.1207273,
              "logger":"baremetalhost","msg":"Reconciling BareMetalHost",
              "Request.Namespace":"metal3","Request.Name":"somehost"}
@@ -356,7 +362,7 @@ class TestFilter(unittest.TestCase):
 {"level":"info","ts":1589380774.1378222,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
 {"level":"info","ts":1589380774.870522,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"bar"}
 {"level":"error","ts":1589380775.0094552,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
-{"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"foo"}
+{"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"metal3~foo"}
 {"level":"info","ts":1589380775.070861,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"bar"}
 {"level":"info","ts":1589380775.099308,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
 {"level":"error","ts":1589380776.36193,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
@@ -430,7 +436,7 @@ class ListNamesTest(unittest.TestCase):
 {"level":"info","ts":1589380774.1378222,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
 {"level":"info","ts":1589380774.870522,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"bar"}
 {"level":"error","ts":1589380775.0094552,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
-{"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"foo"}
+{"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"metal3~foo"}
 {"level":"info","ts":1589380775.070861,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"bar"}
 {"level":"info","ts":1589380775.099308,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
 {"level":"error","ts":1589380776.36193,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}

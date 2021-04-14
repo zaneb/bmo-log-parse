@@ -115,7 +115,7 @@ class Record:
                          data.get('Request.Name',
                                   data.get('name')))
                 if self.logger in CONTROLLER
-                else data.get('host'))
+                else data.get('host', '').replace('~', '/', 1) or None)
         if 'stacktrace' in data:
             if name is None:
                 name = data['request']
