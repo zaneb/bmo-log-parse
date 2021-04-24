@@ -317,6 +317,7 @@ def main():
         line_buffer = autopage.line_buffer_from_input(logstream)
         error_strategy = autopage.ErrorStrategy.BACKSLASH_REPLACE
         pager = autopage.AutoPager(line_buffering=line_buffer,
+                                   reset_on_exit=True,
                                    errors=error_strategy)
         highlight = pager.to_terminal()
         try:
