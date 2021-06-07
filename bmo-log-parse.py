@@ -238,7 +238,7 @@ def parse_datetime(dtstr):
 
 def get_options(args=None):
     """Parse the CLI arguments into options."""
-    import argparse
+    from autopage import argparse
     import pydoc
 
     desc = pydoc.getdoc(sys.modules[__name__])
