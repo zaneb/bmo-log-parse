@@ -14,7 +14,10 @@ piped or redirected, a pager is automatically invoked.
 
 Several filters are available to winnow the output.
 
-    usage: bmo-log-parse.py [-h] [-c | -p] [--error] [-n NAME] [-s START] [-e END]
+
+    usage: bmo-log-parse.py [-h] [-c | -p] [--error] [-n NAME]
+                            [--namespace NAMESPACE] [-s START] [-e END]
+                            [--list-names]
                             [logfile]
 
     positional arguments:
@@ -28,9 +31,12 @@ Several filters are available to winnow the output.
                             Include only provisioner module logs
       --error               Include only logs at ERROR level
       -n NAME, --name NAME  Filter by a particular host name
+      --namespace NAMESPACE
+                            Filter by a particular host namespace
       -s START, --start START
                             Skip ahead to a given time
       -e END, --end END     Stop reading at a given time
+      --list-names          List the names of hosts in the log
 
 ## Testing
 
