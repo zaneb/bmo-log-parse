@@ -1,10 +1,9 @@
-import importlib
 import unittest
 
 import datetime
 import io
 
-bmlp = importlib.import_module('bmo-log-parse')
+import bmo_log_parse as bmlp
 
 
 class RecordTest(unittest.TestCase):

@@ -12,9 +12,9 @@ setuptools.setup(
                 'baremetal-operator.',
     long_description=long_description,
     url='https://github.com/zaneb/bmo-log-parse',
-    py_modules=['bmo-log-parse'],
+    py_modules=['bmo_log_parse'],
     packages=setuptools.find_packages(),
-    scripts=['bmo-log-parse.py'],
+    entry_points={'console_scripts': ['bmo-log-parse=bmo_log_parse:main']},
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3',

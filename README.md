@@ -15,10 +15,10 @@ piped or redirected, a pager is automatically invoked.
 Several filters are available to winnow the output.
 
 
-    usage: bmo-log-parse.py [-h] [-c | -p] [--error] [-n NAME]
-                            [--namespace NAMESPACE] [-s START] [-e END]
-                            [--list-names]
-                            [logfile]
+    usage: bmo-log-parse [-h] [-c | -p] [--error] [-n NAME]
+                         [--namespace NAMESPACE] [-s START] [-e END]
+                         [--list-names]
+                         [logfile]
 
     positional arguments:
       logfile               Input logfile (or "-" to read stdin)
