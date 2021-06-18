@@ -6,6 +6,17 @@ the [Metal³](https://metal3.io/) project.
 
 It is written in Python and requires Python 3.6 or later.
 
+## Installation
+
+Install using pip, into a Python virtualenv or otherwise:
+
+```bash
+pip install https://github.com/zaneb/bmo-log-parse
+```
+
+This automatically installs dependencies also. (Specifically, the
+[autopage](https://pypi.org/project/autopage/) library is a requirement.)
+
 ## Usage
 
 By default, the tool reads from stdin and writes to stdout. It can be used with
