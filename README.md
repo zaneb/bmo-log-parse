@@ -8,10 +8,21 @@ It is written in Python and requires Python 3.6 or later.
 
 ## Installation
 
-Install using pip, into a Python virtualenv or otherwise:
+### On Fedora or CentOS/RHEL
+
+Distro packages are available in Copr:
 
 ```bash
-pip install https://github.com/zaneb/bmo-log-parse
+sudo dnf copr enable zaneb/autopage
+sudo dnf install python3-bmo-log-parse
+```
+
+### Everywhere else
+
+Install using pip:
+
+```bash
+pip3 install --user https://github.com/zaneb/bmo-log-parse
 ```
 
 This automatically installs dependencies also. (Specifically, the
