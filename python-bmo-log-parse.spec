@@ -8,14 +8,12 @@
 %endif
 
 Name:           python-%{srcname}
-Version:        0.1.0
-Release:        6%{?dist}
+Version:        0.1.1
+Release:        1%{?dist}
 Summary:        Utility for logs from the Metal³ baremetal-operator
 License:        ASL 2.0
 URL:            https://github.com/zaneb/%{srcname}
 Source0:        https://github.com/zaneb/%{srcname}/archive/refs/tags/v%{version}.tar.gz
-
-Patch0:         0001-Set-yaml-default_flow_style-explicitly.patch
 
 BuildArch:      noarch
 
@@ -33,11 +31,11 @@ BuildRequires:  python3-devel
 BuildRequires:  pyproject-rpm-macros
 %else
 BuildRequires:  %{py3_dist autopage} >= 0.3
-BuildRequires:  %{py3_dist PyYAML} < 6.0
+BuildRequires:  %{py3_dist PyYAML}
 %endif
 
 Requires:       %{py3_dist autopage} >= 0.3
-Requires:       %{py3_dist PyYAML} < 6.0
+Requires:       %{py3_dist PyYAML}
 
 %description -n python3-%{srcname} %_description
 
@@ -85,6 +83,9 @@ sed -i -e '/^#!/ d' bmo_log_parse.py
 %{_bindir}/bmo-log-parse
 
 %changelog
+* Fri Jun 25 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.1-1
+- Pick up packaging improvements from main branch
+
 * Fri Jun 25 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.0-6
 - Add runtime requirements for EPEL
 
