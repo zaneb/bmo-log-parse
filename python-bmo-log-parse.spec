@@ -2,7 +2,7 @@
 
 Name:           python-%{srcname}
 Version:        0.1.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Utility for logs from the Metal³ baremetal-operator
 License:        ASL 2.0
 URL:            https://github.com/zaneb/%{srcname}
@@ -28,7 +28,6 @@ Requires:       %{py3_dist PyYAML} < 6.0
 
 %prep
 %autosetup -n %{srcname}-%{version}
-tar -tzf %{_sourcedir}/v%{version}.tar.gz
 sed -i -e '/^#!/ d' bmo_log_parse.py
 
 %generate_buildrequires
@@ -50,6 +49,9 @@ sed -i -e '/^#!/ d' bmo_log_parse.py
 %{_bindir}/bmo-log-parse
 
 %changelog
+* Fri Jun 25 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.0-4
+- Remove debugging
+
 * Fri Jun 25 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.0-3
 - Fix requirement version format
 - Remove #! line from module
