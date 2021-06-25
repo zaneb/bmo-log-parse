@@ -1,12 +1,21 @@
 %global srcname bmo-log-parse
 
+# Macros for pyproject (Fedora) vs. setup.py (CentOS)
+%if 0%{?fedora}
+%bcond_without pyproject
+%else
+%bcond_with pyproject
+%endif
+
 Name:           python-%{srcname}
 Version:        0.1.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Utility for logs from the Metal³ baremetal-operator
 License:        ASL 2.0
 URL:            https://github.com/zaneb/%{srcname}
 Source0:        https://github.com/zaneb/%{srcname}/archive/refs/tags/v%{version}.tar.gz
+
+Patch0:         0001-Set-yaml-default_flow_style-explicitly.patch
 
 BuildArch:      noarch
 
@@ -19,10 +28,16 @@ Utility for filtering and displaying logs from the Metal³ baremetal-operator.}
 %package -n python3-%{srcname}
 Summary:        %{summary}
 BuildRequires:  python3-devel
+
+%if %{with pyproject}
 BuildRequires:  pyproject-rpm-macros
 
 Requires:       %{py3_dist autopage} >= 0.3
 Requires:       %{py3_dist PyYAML} < 6.0
+%else
+BuildRequires:  %{py3_dist autopage} >= 0.3
+BuildRequires:  %{py3_dist PyYAML} < 6.0
+%endif
 
 %description -n python3-%{srcname} %_description
 
@@ -30,25 +45,49 @@ Requires:       %{py3_dist PyYAML} < 6.0
 %autosetup -n %{srcname}-%{version}
 sed -i -e '/^#!/ d' bmo_log_parse.py
 
+%if %{with pyproject}
 %generate_buildrequires
 %pyproject_buildrequires -e pep8,%{toxenv}
+%endif
 
 %build
+%if %{with pyproject}
 %pyproject_wheel
+%else
+%py3_build
+%endif
 
 %install
+%if %{with pyproject}
 %pyproject_install
 %pyproject_save_files bmo_log_parse
+%else
+%py3_install
+%endif
 
 %check
+%if %{with pyproject}
 %tox
+%else
+%{python3} setup.py test
+%endif
 
+%if %{with pyproject}
 %files -n python3-%{srcname} -f %{pyproject_files}
+%else
+%files -n python3-%{srcname}
+%{python3_sitelib}/bmo_log_parse-*.egg-info/
+%{python3_sitelib}/bmo_log_parse.py
+%{python3_sitelib}/__pycache__/bmo_log_parse.*
+%endif
 %license LICENSE
 %doc README.md
 %{_bindir}/bmo-log-parse
 
 %changelog
+* Fri Jun 25 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.0-5
+- Support building for EPEL
+
 * Fri Jun 25 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.0-4
 - Remove debugging
 

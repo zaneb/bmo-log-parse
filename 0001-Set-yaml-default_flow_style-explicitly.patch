@@ -1,0 +1,28 @@
+From 1a119cede4dafc57ea8893467638deac9c504011 Mon Sep 17 00:00:00 2001
+From: Zane Bitter <zbitter@redhat.com>
+Date: Fri, 25 Jun 2021 16:14:03 -0400
+Subject: [PATCH] Set yaml default_flow_style explicitly
+
+Earlier versions of PyYAML set this flag to True, then it changed to
+False. To ensure that all versions behave the same in the unit tests,
+set it explicitly.
+---
+ bmo_log_parse.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git bmo_log_parse.py bmo_log_parse.py
+index aeb36a3..2a6d4a5 100755
+--- bmo_log_parse.py
++++ bmo_log_parse.py
+@@ -34,7 +34,7 @@
+ except ImportError:
+     pretty_print = functools.partial(json.dumps, indent=2)
+ else:
+-    pretty_print = yaml.safe_dump
++    pretty_print = functools.partial(yaml.safe_dump, default_flow_style=False)
+ 
+ 
+ LOGGERS = (
+-- 
+2.29.2
+
