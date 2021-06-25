@@ -34,7 +34,7 @@ try:
 except ImportError:
     pretty_print = functools.partial(json.dumps, indent=2)
 else:
-    pretty_print = yaml.safe_dump
+    pretty_print = functools.partial(yaml.safe_dump, default_flow_style=False)
 
 
 LOGGERS = (
