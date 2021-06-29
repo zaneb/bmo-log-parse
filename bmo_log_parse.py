@@ -132,6 +132,8 @@ class Record:
                                            else None))
         self.error = data.pop('error', None) if self.level == ERROR else None
         data.pop('errorVerbose', None)
+        data.pop('reconciler group', None)
+        data.pop('reconciler kind', None)
         self.data = data
 
     def format(self, highlight=False):
