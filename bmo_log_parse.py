@@ -126,8 +126,10 @@ class Record:
         ns_name = fq_name.split('/', 1) if fq_name is not None else (None,
                                                                      None)
         self.name = ns_name[-1]
-        self.namespace = data.get('Request.Namespace',
-                                  ns_name[0] if len(ns_name) > 1 else None)
+        self.namespace = data.get('namespace',
+                                  data.get('Request.Namespace',
+                                           ns_name[0] if len(ns_name) > 1
+                                           else None))
         self.error = data.pop('error', None) if self.level == ERROR else None
         data.pop('errorVerbose', None)
         self.data = data

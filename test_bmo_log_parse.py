@@ -150,6 +150,33 @@ class RecordTest(unittest.TestCase):
         err = bmlp.Record(e)
         self.assertEqual('metal3', err.namespace)
 
+    def test_namespace_controller_runtime(self):
+        ip_ns = {"level":"info","ts":1589380774.1379526,
+                 "logger":"provisioner.ironic",
+                 "msg":"validating management access",
+                 "host":"metal3~somehost"}
+        ironic_prov_ns = bmlp.Record(ip_ns)
+        self.assertEqual('metal3', ironic_prov_ns.namespace)
+
+        b = {"level":"info","ts":1589380774.1207273,
+             "logger":"controllers.BareMetalHost","msg":"start",
+             "baremetalhost":"metal3/somehost"}
+        bmh = bmlp.Record(b)
+        self.assertEqual('metal3', bmh.namespace)
+
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.manager.controller.baremetalhost",
+             "msg":"Reconciler error",
+             "reconciler group":"metal3.io",
+             "reconciler kind":"BareMetalHost",
+             "namespace":"metal3",
+             "name":"somehost",
+             "error":"failed to save host status after \"ready\".",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
+        err = bmlp.Record(e)
+        self.assertEqual('metal3', err.namespace)
+
     def test_message(self):
         l = {"level":"info","ts":1589379832.5167677,"logger":"cmd",
              "msg":"Go Version: go1.13.8"}
