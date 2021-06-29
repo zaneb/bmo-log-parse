@@ -6,7 +6,7 @@ with open('README.md') as readme:
 
 setuptools.setup(
     name='bmo-log-parse',
-    version='0.1.1',
+    version='0.1.2',
     author='Zane Bitter',
     author_email='zbitter@redhat.com',
     description='Utility for filtering and displaying logs from the Metal³ '
