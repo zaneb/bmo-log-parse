@@ -114,7 +114,7 @@ class Record:
         fq_name = (data.get('baremetalhost',
                             data.get('Request.Name',
                                      data.get('name')))
-                   if self.logger in CONTROLLER
+                   if self.logger not in PROVISIONER
                    else data.get('host', '').replace('~', '/', 1) or None)
         if 'stacktrace' in data:
             if fq_name is None:

@@ -86,6 +86,20 @@ class RecordTest(unittest.TestCase):
         err = bmlp.Record(e)
         self.assertEqual('somehost', err.name)
 
+    def test_name_controller_runtime(self):
+        e = {"level":"error","ts":1589381055.1638162,
+             "logger":"controller-runtime.manager.controller.baremetalhost",
+             "msg":"Reconciler error",
+             "reconciler group":"metal3.io",
+             "reconciler kind":"BareMetalHost",
+             "namespace":"metal3",
+             "name":"somehost",
+             "error":"failed to save host status after \"ready\".",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
+        err = bmlp.Record(e)
+        self.assertEqual('somehost', err.name)
+
     def test_namespace(self):
         c = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         cmd = bmlp.Record(c)
