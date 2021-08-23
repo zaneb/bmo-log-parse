@@ -8,7 +8,7 @@
 %endif
 
 Name:           python-%{srcname}
-Version:        0.1.2
+Version:        0.1.3
 Release:        1%{?dist}
 Summary:        Utility for logs from the Metal³ baremetal-operator
 License:        ASL 2.0
@@ -83,6 +83,9 @@ sed -i -e '/^#!/ d' bmo_log_parse.py
 %{_bindir}/bmo-log-parse
 
 %changelog
+* Mon Aug 23 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.3-1
+- Fix bug with error logs at BMO startup.
+
 * Tue Jun 29 2021 Zane Bitter <zaneb@fedoraproject.org> 0.1.2-1
 - Fix bugs with controller-runtime error logs in recent versions of the BMO.
 
