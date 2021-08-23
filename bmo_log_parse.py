@@ -118,7 +118,7 @@ class Record:
                    else data.get('host', '').replace('~', '/', 1) or None)
         if 'stacktrace' in data:
             if fq_name is None:
-                fq_name = data['request']
+                fq_name = data.get('request')
             self.context = data.pop('stacktrace')
         elif (self.message == 'received introspection data' and
                 'data' in data):

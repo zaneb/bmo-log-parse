@@ -86,6 +86,17 @@ class RecordTest(unittest.TestCase):
         err = bmlp.Record(e)
         self.assertEqual('somehost', err.name)
 
+        se = {"level":"error","ts":1589381055.1638162,
+              "logger":"controller-runtime.source",
+              "msg":"if kind is a CRD, in should be installed before calling Start",
+              "kind":"BaremetalHost.metal3.io",
+              "error":"no matches for kind \"BaremetalHost\" in"
+                      "version \"metal3.io/v1alpha1\"",
+              "stacktrace":"sigs.k8s.io/controller-runtime/pkg/source.(*Kind).Start.func1\n"
+              "\t/go/src/github.com/metal3-io/baremetal-operator/vendor/sigs.k8s.io/controller-runtime/pkg/source/source.go:128"}
+        err = bmlp.Record(se)
+        self.assertIsNone(err.name)
+
     def test_name_controller_runtime(self):
         e = {"level":"error","ts":1589381055.1638162,
              "logger":"controller-runtime.manager.controller.baremetalhost",
