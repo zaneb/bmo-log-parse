@@ -22,7 +22,7 @@ sudo dnf install python3-bmo-log-parse
 Install using pip:
 
 ```bash
-pip3 install --user https://github.com/zaneb/bmo-log-parse
+pip3 install --user git+https://github.com/zaneb/bmo-log-parse
 ```
 
 This automatically installs dependencies also. (Specifically, the
