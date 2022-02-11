@@ -116,7 +116,8 @@ class Record:
             if self.logger in PROVISIONER:
                 return data.get('host', '').replace('~', '/', 1) or None
 
-            for f in ['baremetalhost', 'Request.Name', 'name']:
+            for f in ['baremetalhost', 'Request.Name', 'name',
+                      'hostfirmwaresettings']:
                 if f in data:
                     return data[f]
             return None

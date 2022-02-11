@@ -111,6 +111,14 @@ class RecordTest(unittest.TestCase):
         err = bmlp.Record(e)
         self.assertEqual('somehost', err.name)
 
+    def test_name_hfs(self):
+        f = {"level":"info","ts":1644553362.482095,
+             "logger":"controllers.HostFirmwareSettings",
+             "msg":"start",
+             "hostfirmwaresettings":"metal3/somehost"}
+        hfs = bmlp.Record(f)
+        self.assertEqual('somehost', hfs.name)
+
     def test_namespace(self):
         c = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         cmd = bmlp.Record(c)
