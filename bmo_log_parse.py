@@ -117,7 +117,7 @@ class Record:
                 return data.get('host', '').replace('~', '/', 1) or None
 
             for f in ['baremetalhost', 'Request.Name', 'name',
-                      'hostfirmwaresettings']:
+                      'hostfirmwaresettings', 'preprovisioningimage']:
                 if f in data:
                     return data[f]
             return None

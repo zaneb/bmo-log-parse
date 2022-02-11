@@ -119,6 +119,14 @@ class RecordTest(unittest.TestCase):
         hfs = bmlp.Record(f)
         self.assertEqual('somehost', hfs.name)
 
+    def test_name_ppimg(self):
+        i = {"level":"info","ts":1643928194.57431,
+             "logger":"controllers.PreprovisioningImage",
+             "msg":"updating status",
+             "preprovisioningimage":"metal3/somehost"}
+        image = bmlp.Record(i)
+        self.assertEqual('somehost', image.name)
+
     def test_namespace(self):
         c = {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":""}
         cmd = bmlp.Record(c)
