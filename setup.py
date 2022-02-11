@@ -32,4 +32,8 @@ setuptools.setup(
         'Topic :: Text Processing :: Filters',
     ],
     python_requires='>=3.6',
+    install_requires=[
+        'autopage',
+        'PyYAML'
+    ],
 )
