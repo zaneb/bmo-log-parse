@@ -111,11 +111,18 @@ class Record:
         self.logger = data.pop(self.LOGGER, '').split('.', 1)[0]
         self.message = data.pop(self.MESSAGE)
         self.context = None
-        fq_name = (data.get('baremetalhost',
-                            data.get('Request.Name',
-                                     data.get('name')))
-                   if self.logger not in PROVISIONER
-                   else data.get('host', '').replace('~', '/', 1) or None)
+
+        def get_fq_name():
+            if self.logger in PROVISIONER:
+                return data.get('host', '').replace('~', '/', 1) or None
+
+            for f in ['baremetalhost', 'Request.Name', 'name']:
+                if f in data:
+                    return data[f]
+            return None
+
+        fq_name = get_fq_name()
+
         if 'stacktrace' in data:
             if fq_name is None:
                 fq_name = data.get('request')
