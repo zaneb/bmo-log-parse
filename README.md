@@ -37,17 +37,18 @@ piped or redirected, a pager is automatically invoked.
 Several filters are available to winnow the output.
 
 
-    usage: bmo-log-parse [-h] [-c | -p] [--error] [-n NAME]
+    usage: bmo-log-parse [-h] [-c [CONTROLLER] | -p] [--error] [-n NAME]
                          [--namespace NAMESPACE] [-s START] [-e END]
                          [--list-names]
                          [logfile]
+
 
     positional arguments:
       logfile               Input logfile (or "-" to read stdin)
 
     optional arguments:
       -h, --help            show this help message and exit
-      -c, --controller-only
+      -c [CONTROLLER], --controller-only [CONTROLLER]
                             Include only controller module logs
       -p, --provisioner-only
                             Include only provisioner module logs

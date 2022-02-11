@@ -481,8 +481,11 @@ class TestFilter(unittest.TestCase):
 {"level":"error","ts":1589380775.0094552,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"baz"}
 {"level":"error","ts":1589380775.0401566,"logger":"baremetalhost_ironic","msg":"Reconciling BareMetalHost","host":"metal3~foo"}
 {"level":"info","ts":1589380775.070861,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"bar"}
-{"level":"info","ts":1589380775.099308,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
+{"level":"info","ts":1589380775.099308,"logger":"controllers.BareMetalHost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"foo"}
 {"level":"error","ts":1589380776.36193,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal4","Request.Name":"foo"}
+{"level":"info","ts":1643928194.57431,"logger":"controllers.PreprovisioningImage","msg":"updating status","preprovisioningimage":"metal5/wibble"}
+{"level":"info","ts":1644553362.482095,"logger":"controllers.HostFirmwareSettings","msg":"start","hostfirmwaresettings":"metal5/wibble"}
+{"level":"info","ts":1644566317.4338849,"logger":"controllers.BMCEventSubscription","msg":"start","bmceventsubscription":"metal5/wibble"}
 """
 
     def setUp(self):
@@ -491,7 +494,7 @@ class TestFilter(unittest.TestCase):
     def test_no_filter(self):
         f = bmlp.get_filters(bmlp.get_options([]))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(10, len(r))
+        self.assertEqual(13, len(r))
 
     def test_filter_name(self):
         f = bmlp.get_filters(bmlp.get_options(['--name=foo']))
@@ -511,7 +514,27 @@ class TestFilter(unittest.TestCase):
     def test_filter_controller(self):
         f = bmlp.get_filters(bmlp.get_options(['--controller-only']))
         r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(11, len(r))
+
+    def test_filter_controller_bmh(self):
+        f = bmlp.get_filters(bmlp.get_options(['--controller-only=bmh']))
+        r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(8, len(r))
+
+    def test_filter_controller_ppimg(self):
+        f = bmlp.get_filters(bmlp.get_options(['--controller-only=ppimg']))
+        r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(1, len(r))
+
+    def test_filter_controller_hfs(self):
+        f = bmlp.get_filters(bmlp.get_options(['--controller-only=hfs']))
+        r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(1, len(r))
+
+    def test_filter_controller_bmcevent(self):
+        f = bmlp.get_filters(bmlp.get_options(['--controller-only=bmcevent']))
+        r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(1, len(r))
 
     def test_filter_provisioner(self):
         f = bmlp.get_filters(bmlp.get_options(['--provisioner-only']))
@@ -521,7 +544,7 @@ class TestFilter(unittest.TestCase):
     def test_filter_start(self):
         f = bmlp.get_filters(bmlp.get_options(['--start=2020-05-13T14:39:35']))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(5, len(r))
+        self.assertEqual(8, len(r))
 
     def test_filter_end(self):
         f = bmlp.get_filters(bmlp.get_options(['--end=2020-05-13T14:39:36']))

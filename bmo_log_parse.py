@@ -55,6 +55,18 @@ LEVELS = (
     'info', 'error',
 )
 
+RECONCILERS = (
+    BMH_RECONCILER,
+    PPIMG_RECONCILER,
+    HFS_RECONCILER,
+    BMCEVENT_RECONCILER,
+) = (
+    'baremetalhost',
+    'preprovisioningimage',
+    'hostfirmwaresettings',
+    'bmceventsubscription',
+)
+
 
 _matcher = re.compile(r'''
 (?:
@@ -108,7 +120,9 @@ class Record:
         ts = float(data.pop(self.TIMESTAMP))
         utc = datetime.timezone.utc
         self.timestamp = datetime.datetime.fromtimestamp(ts, tz=utc)
-        self.logger = data.pop(self.LOGGER, '').split('.', 1)[0]
+        logger = data.pop(self.LOGGER, '').split('.', 1)
+        self.logger = logger[0]
+        self.sublogger = logger[-1].lower()
         self.message = data.pop(self.MESSAGE)
         self.context = None
 
@@ -216,8 +230,16 @@ def get_filters(options):
                      lambda r: r.timestamp < start_time)
     if options.error:
         yield Filter(filter, lambda r: r.level == ERROR)
-    if options.controller_only:
-        yield Filter(filter, lambda r: r.logger in CONTROLLER)
+    if options.controller_only is not False:
+        controller_type = options.controller_only
+        if controller_type is True:
+            def ctrl_ffunc(r):
+                return r.logger in CONTROLLER
+        else:
+            def ctrl_ffunc(r):
+                return (r.logger in CONTROLLER and
+                        r.sublogger == controller_type)
+        yield Filter(filter, ctrl_ffunc)
     if options.provisioner_only:
         yield Filter(filter, lambda r: r.logger in PROVISIONER)
     if options.name is not None:
@@ -248,6 +270,19 @@ def parse_datetime(dtstr):
     return datetime.datetime.strptime(dtstr, fmt)
 
 
+def parse_controller(ctrl_str):
+    ctrl = ctrl_str.lower()
+    if ctrl in {'baremetalhost', 'bmh'}:
+        return BMH_RECONCILER
+    if ctrl in {'preprovisioningimage', 'ppimg'}:
+        return PPIMG_RECONCILER
+    if ctrl in {'hostfirmwaresettings', 'hfs'}:
+        return HFS_RECONCILER
+    if ctrl in {'bmceventsubscription', 'bmcevent'}:
+        return BMCEVENT_RECONCILER
+    return ctrl_str
+
+
 def get_options(args=None):
     """Parse the CLI arguments into options."""
     from autopage import argparse
@@ -260,7 +295,10 @@ def get_options(args=None):
                         help='Input logfile (or "-" to read stdin)')
 
     logger_group = parser.add_mutually_exclusive_group()
-    logger_group.add_argument('-c', '--controller-only', action='store_true',
+    logger_group.add_argument('-c', '--controller-only', nargs='?',
+                              type=parse_controller,
+                              default=False, const=True, metavar='CONTROLLER',
+                              choices=RECONCILERS,
                               help='Include only controller module logs')
     logger_group.add_argument('-p', '--provisioner-only', action='store_true',
                               help='Include only provisioner module logs')
