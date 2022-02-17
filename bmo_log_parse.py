@@ -42,11 +42,13 @@ LOGGERS = (
     RUNTIME,
     CONTROLLER,
     PROVISIONER,
+    WEBHOOK,
 ) = (
     {'cmd', 'setup', ''},
     {'controller-runtime'},
     {'controller', 'baremetalhost', 'controllers'},
     {'baremetalhost_ironic', 'provisioner'},
+    {'baremetalhost-resource', 'baremetalhost-validation'},
 )
 
 LEVELS = (
@@ -242,6 +244,8 @@ def get_filters(options):
         yield Filter(filter, ctrl_ffunc)
     if options.provisioner_only:
         yield Filter(filter, lambda r: r.logger in PROVISIONER)
+    if options.webhook_only:
+        yield Filter(filter, lambda r: r.logger in WEBHOOK)
     if options.name is not None:
         name = options.name
         yield Filter(filter, lambda r: r.name == name)
@@ -302,6 +306,8 @@ def get_options(args=None):
                               help='Include only controller module logs')
     logger_group.add_argument('-p', '--provisioner-only', action='store_true',
                               help='Include only provisioner module logs')
+    logger_group.add_argument('-w', '--webhook-only', action='store_true',
+                              help='Include only webhook logs')
 
     parser.add_argument('--error', action='store_true',
                         help='Include only logs at ERROR level')

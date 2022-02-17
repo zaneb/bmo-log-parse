@@ -37,7 +37,7 @@ piped or redirected, a pager is automatically invoked.
 Several filters are available to winnow the output.
 
 
-    usage: bmo-log-parse [-h] [-c [CONTROLLER] | -p] [--error] [-n NAME]
+    usage: bmo-log-parse [-h] [-c [CONTROLLER] | -p | -w] [--error] [-n NAME]
                          [--namespace NAMESPACE] [-s START] [-e END]
                          [--list-names]
                          [logfile]
@@ -52,6 +52,7 @@ Several filters are available to winnow the output.
                             Include only controller module logs
       -p, --provisioner-only
                             Include only provisioner module logs
+      -w, --webhook-only    Include only webhook logs
       --error               Include only logs at ERROR level
       -n NAME, --name NAME  Filter by a particular host name
       --namespace NAMESPACE
