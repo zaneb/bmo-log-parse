@@ -6,7 +6,7 @@ with open('README.md') as readme:
 
 setuptools.setup(
     name='bmo-log-parse',
-    version='0.2.0',
+    version='0.3.0',
     author='Zane Bitter',
     author_email='zbitter@redhat.com',
     description='Utility for filtering and displaying logs from the Metal³ '
@@ -25,6 +25,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Operating System :: POSIX',
         'Environment :: Console',
         'Intended Audience :: System Administrators',
