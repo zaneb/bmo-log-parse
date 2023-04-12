@@ -107,6 +107,26 @@ def read_records(logstream):
             if p is not None)
 
 
+def parse_timestamp(ts):
+    try:
+        posix_ts = float(ts)
+    except ValueError:
+        # Handle timestamp format introduced (hopefully temporarily) by
+        # https://github.com/metal3-io/baremetal-operator/pull/1175
+        if hasattr(datetime.datetime, 'fromisoformat'):
+            if ts.endswith('Z'):
+                # Python < 3.11
+                ts = ts[:-1] + '+00:00'
+            return datetime.datetime.fromisoformat(ts)
+        else:  # Python < 3.7
+            return datetime.datetime.strptime(ts[:-1] + '000+0000',
+                                                        '%Y-%m-%d'
+                                                        'T%H:%M:%S.%f%z')
+    else:
+        return datetime.datetime.fromtimestamp(posix_ts,
+                                               tz=datetime.timezone.utc)
+
+
 class Record:
     """Class representing a single log record."""
 
@@ -119,9 +139,7 @@ class Record:
     def __init__(self, data):
         """Initialise from the (JSON) log text."""
         self.level = data.pop(self.LEVEL)
-        ts = float(data.pop(self.TIMESTAMP))
-        utc = datetime.timezone.utc
-        self.timestamp = datetime.datetime.fromtimestamp(ts, tz=utc)
+        self.timestamp = parse_timestamp(data.pop(self.TIMESTAMP))
         logger = data.pop(self.LOGGER, '').split('.', 1)
         self.logger = logger[0]
         self.sublogger = logger[-1].lower()
