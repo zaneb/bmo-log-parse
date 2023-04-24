@@ -396,7 +396,12 @@ def main():
         return 1
 
     filters = get_filters(options)
-    with input_stream(options.logfile) as logstream:
+    try:
+        instream = input_stream(options.logfile)
+    except FileNotFoundError as exc:
+        _report_error(str(exc))
+        return 1
+    with instream as logstream:
         if logstream.isatty():
             _report_error('No input found.')
             return 1
