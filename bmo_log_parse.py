@@ -176,7 +176,7 @@ class Record:
                                            ns_name[0] if len(ns_name) > 1
                                            else None))
         self.error = data.pop('error', None) if self.level == ERROR else None
-        data.pop('errorVerbose', None)
+        self.verbose_error = data.pop('errorVerbose', None)
         data.pop('reconciler group', None)
         data.pop('reconciler kind', None)
         data.pop('controllerGroup', None)
@@ -187,7 +187,7 @@ class Record:
         data.pop('reconcileID', None)
         self.data = data
 
-    def format(self, highlight=False):
+    def format(self, highlight=False, verbose=False):
         """
         Format the log record as a human-readable string.
 
@@ -215,6 +215,8 @@ class Record:
             extra_data = '\n'.join([extra_data, err])
         if self.context is not None:
             ct = self.context
+            if verbose and self.verbose_error is not None:
+                ct = self.verbose_error
             if highlight:
                 ct = '\n'.join(f'\033[90m{l}\033[39m' for l in ct.splitlines())
             extra_data = '\n'.join([extra_data, ct])
@@ -235,10 +237,10 @@ def filtered_records(logstream, filters):
 
 
 def process_log(input_stream, filters, output_stream=sys.stdout,
-                highlight=False):
+                highlight=False, verbose=False):
     """Process the input log stream and write to an output stream."""
     for r in filtered_records(input_stream, filters):
-        output_stream.write(f'{r.format(highlight)}\n')
+        output_stream.write(f'{r.format(highlight, verbose)}\n')
 
 
 def list_host_names(input_stream, filters, output_stream=sys.stdout):
@@ -338,6 +340,8 @@ def get_options(args=None):
 
     parser.add_argument('--error', action='store_true',
                         help='Include only logs at ERROR level')
+    parser.add_argument('--verbose', action='store_true',
+                        help='Include verbose error logs')
     parser.add_argument('-n', '--name', default=None,
                         help='Filter by a particular host name')
     parser.add_argument('--namespace', default=None,
@@ -408,7 +412,8 @@ def main():
                 if options.list_names:
                     list_host_names(logstream, filters, output_stream)
                 else:
-                    process_log(logstream, filters, output_stream, highlight)
+                    process_log(logstream, filters, output_stream,
+                                highlight, options.verbose)
         except KeyboardInterrupt:
             pass
         except ParseException as exc:

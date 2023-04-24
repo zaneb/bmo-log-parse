@@ -353,6 +353,38 @@ class RecordTest(unittest.TestCase):
             '\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128',
             r.format())
 
+    def test_format_error_verbose_stacktrace(self):
+        e = {"level":"error","ts":"2023-04-07T11:57:12.235Z",
+             "msg":"Reconciler error",
+             "controller":"baremetalhost",
+             "controllerGroup":"metal3.io",
+             "controllerKind":"BareMetalHost",
+             "BareMetalHost":{"name":"somehost","namespace":"metal3"},
+             "namespace":"metal3",
+             "name":"somehost",
+             "reconcileID":"ddb00718-a6c5-4f56-9470-75ef509b68ec",
+             "error":"action \"unmanaged\" failed: failed to determine stuff",
+             "errorVerbose":"missing BMC address\n"
+             "github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128\n"
+             "runtime.goexit\n"
+             "\t/usr/lib/golang/src/runtime/asm_amd64.s:1594\n",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
+        r = bmlp.Record(e)
+
+        self.assertEqual(
+            '2023-04-07T11:57:12.235 Reconciler error {'
+            "controller: 'baremetalhost', "
+            "namespace: 'metal3', name: 'somehost'}\n"
+            'action \"unmanaged\" failed: failed to determine stuff\n'
+            'missing BMC address\n'
+            'github.com/go-logr/zapr.(*zapLogger).Error\n'
+            '\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128\n'
+            'runtime.goexit\n'
+            '\t/usr/lib/golang/src/runtime/asm_amd64.s:1594\n',
+            r.format(verbose=True))
+
     def test_format_error_highlight(self):
         e = {"level":"error","ts":1589381055.1638162,
              "logger":"controller-runtime.controller",
@@ -406,6 +438,41 @@ class RecordTest(unittest.TestCase):
             '\033[90m\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/'
             'zapr.go:128\033[39m',
             r.format(highlight=True))
+
+    def test_format_error_verbose_stacktrace_highlight(self):
+        e = {"level":"error","ts":"2023-04-07T11:57:12.235Z",
+             "msg":"Reconciler error",
+             "controller":"baremetalhost",
+             "controllerGroup":"metal3.io",
+             "controllerKind":"BareMetalHost",
+             "BareMetalHost":{"name":"somehost","namespace":"metal3"},
+             "namespace":"metal3",
+             "name":"somehost",
+             "reconcileID":"ddb00718-a6c5-4f56-9470-75ef509b68ec",
+             "error":"action \"unmanaged\" failed: failed to determine stuff",
+             "errorVerbose":"missing BMC address\n"
+             "github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128\n"
+             "runtime.goexit\n"
+             "\t/usr/lib/golang/src/runtime/asm_amd64.s:1594\n",
+             "stacktrace":"github.com/go-logr/zapr.(*zapLogger).Error\n"
+             "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
+        r = bmlp.Record(e)
+
+        self.assertEqual(
+            '\033[91m2023-04-07T11:57:12.235 '
+            '\033[31mReconciler error\033[91m {'
+            "controller: 'baremetalhost', "
+            "namespace: 'metal3', name: 'somehost'}\033[39m\n"
+            '\033[31maction \"unmanaged\" failed: '
+            'failed to determine stuff\033[39m\n'
+            '\033[90mmissing BMC address\033[39m\n'
+            '\033[90mgithub.com/go-logr/zapr.(*zapLogger).Error\033[39m\n'
+            '\033[90m\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/'
+            'zapr.go:128\033[39m\n'
+            '\033[90mruntime.goexit\033[39m\n'
+            '\033[90m\t/usr/lib/golang/src/runtime/asm_amd64.s:1594\033[39m',
+            r.format(verbose=True, highlight=True))
 
 
 class TestRead(unittest.TestCase):
