@@ -150,18 +150,7 @@ class Record:
         self.message = data.pop(self.MESSAGE)
         self.context = None
 
-        def get_fq_name():
-            if self.logger in PROVISIONER:
-                return data.get('host', '').replace('~', '/', 1) or None
-
-            for f in ['baremetalhost', 'Request.Name', 'name',
-                      'hostfirmwaresettings', 'preprovisioningimage']:
-                if f in data:
-                    return data[f]
-            return None
-
-        fq_name = get_fq_name()
-
+        fq_name = self._get_fq_name(self.logger, data)
         if 'stacktrace' in data:
             if fq_name is None:
                 fq_name = data.get('request')
@@ -187,6 +176,17 @@ class Record:
             data.pop(rt, None)
         data.pop('reconcileID', None)
         self.data = data
+
+    @staticmethod
+    def _get_fq_name(logger, data):
+        if logger in PROVISIONER:
+            return data.get('host', '').replace('~', '/', 1) or None
+
+        for f in ('baremetalhost', 'Request.Name', 'name',
+                  'hostfirmwaresettings', 'preprovisioningimage'):
+            if f in data:
+                return data[f]
+        return None
 
     def format(self, highlight=False, verbose=False):
         """
