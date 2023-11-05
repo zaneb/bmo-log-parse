@@ -48,7 +48,8 @@ LOGGERS = (
     {'controller-runtime'},
     {'controller', 'baremetalhost', 'controllers'},
     {'baremetalhost_ironic', 'provisioner'},
-    {'baremetalhost-resource', 'baremetalhost-validation'},
+    {'baremetalhost-resource', 'baremetalhost-validation',
+     'bmceventsubscription-resource', 'bmceventsubscription-validation'},
 )
 
 LEVELS = (

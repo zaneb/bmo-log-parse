@@ -576,6 +576,8 @@ class TestFilter(unittest.TestCase):
 {"level":"info","ts":1644566317.4338849,"logger":"controllers.BMCEventSubscription","msg":"start","bmceventsubscription":"metal5/wibble"}
 {"level":"info","ts":1696185326.2182565,"logger":"baremetalhost-resource","msg":"validate update","name":"blarg"}
 {"level":"info","ts":1696185326.2182727,"logger":"baremetalhost-validation","msg":"validate update","name":"blarg"}
+{"level":"info","ts":1696185326.2333705,"logger":"bmceventsubscription-resource","msg":"validate create","name":"blarg"}
+{"level":"info","ts":1696185326.2333896,"logger":"bmceventsubscription-validation","msg":"validate create","name":"blarg"}
 """
 
     def setUp(self):
@@ -584,7 +586,7 @@ class TestFilter(unittest.TestCase):
     def test_no_filter(self):
         f = bmlp.get_filters(bmlp.get_options([]))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(15, len(r))
+        self.assertEqual(17, len(r))
 
     def test_filter_name(self):
         f = bmlp.get_filters(bmlp.get_options(['--name=foo']))
@@ -634,12 +636,12 @@ class TestFilter(unittest.TestCase):
     def test_filter_webhook(self):
         f = bmlp.get_filters(bmlp.get_options(['--webhook-only']))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(2, len(r))
+        self.assertEqual(4, len(r))
 
     def test_filter_start(self):
         f = bmlp.get_filters(bmlp.get_options(['--start=2020-05-13T14:39:35']))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(10, len(r))
+        self.assertEqual(12, len(r))
 
     def test_filter_end(self):
         f = bmlp.get_filters(bmlp.get_options(['--end=2020-05-13T14:39:36']))
