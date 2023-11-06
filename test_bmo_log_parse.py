@@ -640,6 +640,16 @@ class TestFilter(unittest.TestCase):
         r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(6, len(r))
 
+    def test_filter_webhook_bmh(self):
+        f = bmlp.get_filters(bmlp.get_options(['--webhook-only=bmh']))
+        r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(3, len(r))
+
+    def test_filter_webhook_bmcevent(self):
+        f = bmlp.get_filters(bmlp.get_options(['--webhook-only=bmcevent']))
+        r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(3, len(r))
+
     def test_filter_start(self):
         f = bmlp.get_filters(bmlp.get_options(['--start=2020-05-13T14:39:35']))
         r = list(bmlp.filtered_records(self.stream, f))

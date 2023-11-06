@@ -70,6 +70,10 @@ RECONCILERS = (
     'bmceventsubscription',
 )
 
+WEBHOOKS = (
+    BMH_RECONCILER,
+    BMCEVENT_RECONCILER,
+)
 
 _matcher = re.compile(r'''
 (?:
@@ -143,7 +147,10 @@ class Record:
         self.timestamp = parse_timestamp(data.pop(self.TIMESTAMP))
         logger = data.pop(self.LOGGER, '').split('.', 1)
         self.logger = logger[0]
-        self.sublogger = logger[-1].lower()
+        if len(logger) > 1:
+            self.sublogger = logger[1].lower()
+        else:
+            self.sublogger = self.logger.split('-', 1)[0]
         if not self.logger and 'controller' in data:
             self.logger = 'controller'
             self.sublogger = data['controller']
@@ -275,7 +282,15 @@ def get_filters(options):
     if options.provisioner_only:
         yield Filter(filter, lambda r: r.logger in PROVISIONER)
     if options.webhook_only:
-        yield Filter(filter, lambda r: r.logger in WEBHOOK)
+        webhook_type = options.webhook_only
+        if webhook_type is True:
+            def wh_ffunc(r):
+                return r.logger in WEBHOOK
+        else:
+            def wh_ffunc(r):
+                return (r.logger in WEBHOOK and
+                        r.sublogger == webhook_type)
+        yield Filter(filter, wh_ffunc)
     if options.name is not None:
         name = options.name
         yield Filter(filter, lambda r: r.name == name)
@@ -336,7 +351,10 @@ def get_options(args=None):
                               help='Include only controller module logs')
     logger_group.add_argument('-p', '--provisioner-only', action='store_true',
                               help='Include only provisioner module logs')
-    logger_group.add_argument('-w', '--webhook-only', action='store_true',
+    logger_group.add_argument('-w', '--webhook-only', nargs='?',
+                              type=parse_controller,
+                              default=False, const=True, metavar='WEBHOOK',
+                              choices=WEBHOOKS,
                               help='Include only webhook logs')
 
     parser.add_argument('--error', action='store_true',
