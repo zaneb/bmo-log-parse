@@ -143,6 +143,9 @@ class Record:
         logger = data.pop(self.LOGGER, '').split('.', 1)
         self.logger = logger[0]
         self.sublogger = logger[-1].lower()
+        if not self.logger and 'controller' in data:
+            self.logger = 'controller'
+            self.sublogger = data['controller']
         self.message = data.pop(self.MESSAGE)
         self.context = None
 
@@ -176,6 +179,12 @@ class Record:
         data.pop('errorVerbose', None)
         data.pop('reconciler group', None)
         data.pop('reconciler kind', None)
+        data.pop('controllerGroup', None)
+        data.pop('controllerKind', None)
+        for rt in {'BareMetalHost', 'HostFirmwareSettings',
+                   'PreprovisioningImage', 'BMCEventSubscription'}:
+            data.pop(rt, None)
+        data.pop('reconcileID', None)
         self.data = data
 
     def format(self, highlight=False):
