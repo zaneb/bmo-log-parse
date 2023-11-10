@@ -37,23 +37,25 @@ piped or redirected, a pager is automatically invoked.
 Several filters are available to winnow the output.
 
 
-    usage: bmo-log-parse [-h] [-c [CONTROLLER] | -p | -w] [--error] [-n NAME]
-                         [--namespace NAMESPACE] [-s START] [-e END]
-                         [--list-names]
+    usage: bmo-log-parse [-h] [-c [CONTROLLER] | -p | -w [WEBHOOK]] [--error]
+                         [--verbose] [-n NAME] [--namespace NAMESPACE]
+                         [-s START] [-e END] [--list-names]
                          [logfile]
 
 
     positional arguments:
       logfile               Input logfile (or "-" to read stdin)
 
-    optional arguments:
+    options:
       -h, --help            show this help message and exit
       -c [CONTROLLER], --controller-only [CONTROLLER]
                             Include only controller module logs
       -p, --provisioner-only
                             Include only provisioner module logs
-      -w, --webhook-only    Include only webhook logs
+      -w [WEBHOOK], --webhook-only [WEBHOOK]
+                            Include only webhook logs
       --error               Include only logs at ERROR level
+      --verbose             Include verbose error logs
       -n NAME, --name NAME  Filter by a particular host name
       --namespace NAMESPACE
                             Filter by a particular host namespace
