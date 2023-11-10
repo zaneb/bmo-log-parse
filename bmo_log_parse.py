@@ -124,9 +124,13 @@ def parse_timestamp(ts):
                 ts = ts[:-1] + '+00:00'
             return datetime.datetime.fromisoformat(ts)
         else:  # Python < 3.7
-            return datetime.datetime.strptime(ts[:-1] + '000+0000',
-                                                        '%Y-%m-%d'
-                                                        'T%H:%M:%S.%f%z')
+            time_format = '%H:%M:%S'
+            ts = ts[:-1]
+            if '.' in ts:
+                ts += '000'
+                time_format += '.%f'
+            return datetime.datetime.strptime(ts + '+0000',
+                                              '%Y-%m-%dT' + time_format + '%z')
     else:
         return datetime.datetime.fromtimestamp(posix_ts,
                                                tz=datetime.timezone.utc)

@@ -21,8 +21,8 @@ class RecordTest(unittest.TestCase):
         self.assertEqual('2020-05-13T14:23:52.516',
                          output.format().split(' ')[0])
 
-    def test_iso_timestamp(self):
-        # Check timestamp format introduced (hopefully temporarily) by
+    def test_iso8601_timestamp(self):
+        # Check timestamp format introduced (temporarily) by
         # https://github.com/metal3-io/baremetal-operator/pull/1175
         l = {"level":"info","ts":"2020-05-13T14:23:52.516Z",
              "logger":"cmd","msg":""}
@@ -34,6 +34,21 @@ class RecordTest(unittest.TestCase):
 
         output = r.format()
         self.assertEqual('2020-05-13T14:23:52.516',
+                         output.format().split(' ')[0])
+
+    def test_rfc3339_timestamp(self):
+        # Check timestamp format introduced (temporarily) by
+        # controller-runtime 0.14
+        l = {"level":"info","ts":"2020-05-13T14:23:52Z",
+             "logger":"cmd","msg":""}
+        r = bmlp.Record(l)
+
+        self.assertEqual(datetime.datetime(2020, 5, 13, 14, 23, 52, 0,
+                                           datetime.timezone.utc),
+                         r.timestamp)
+
+        output = r.format()
+        self.assertEqual('2020-05-13T14:23:52.000',
                          output.format().split(' ')[0])
 
     def test_level(self):
