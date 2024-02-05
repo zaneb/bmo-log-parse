@@ -26,6 +26,7 @@ import itertools
 import json
 import re
 import sys
+import traceback
 
 import autopage
 
@@ -95,21 +96,39 @@ class ParseException(Exception):
         super().__init__(f'Record parse error: {self.err_msg} '
                          f'(at {ln}column {self.column}): {self.line}')
 
+    def format(self):
+        return ''.join(traceback.format_exception_only(self))
+
+
+class FormatException(Exception):
+    def __init__(self, error, match, lineno=None):
+        self.lineno = lineno
+        self.line = match.group(1)
+
+        ln = f' (at line {self.lineno})' if self.lineno is not None else ''
+        super().__init__(f'Record format error{ln}: {self.line}')
+
+    def format(self):
+        return ''.join(traceback.format_exception(type(self), self, None))
+
 
 def _parse_record(m):
     i, match = m
     if match is None:
         return None
     try:
-        return json.loads(match.group(1))
+        data = json.loads(match.group(1))
     except json.decoder.JSONDecodeError as exc:
-        raise ParseException(exc, match, i)
+        raise ParseException(exc, match, i) from exc
+    try:
+        return Record(data)
+    except Exception as exc:
+        raise FormatException(exc, match, i) from exc
 
 
 def read_records(logstream):
-    return (Record(p) for p in map(_parse_record, enumerate(map(_matcher,
-                                                                logstream)))
-            if p is not None)
+    return filter(None, map(_parse_record, enumerate(map(_matcher,
+                                                         logstream))))
 
 
 def parse_timestamp(ts):
@@ -444,8 +463,10 @@ def main():
                                 highlight, options.verbose)
         except KeyboardInterrupt:
             pass
-        except ParseException as exc:
-            _report_error(str(exc))
+        except (ParseException, FormatException) as exc:
+            _report_error(exc.format())
+        except Exception as exc:
+            _report_error(''.join(traceback.format_exception(exc)))
         return pager.exit_code()
 
 
