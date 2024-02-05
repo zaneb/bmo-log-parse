@@ -133,6 +133,14 @@ class RecordTest(unittest.TestCase):
         bmhv = bmlp.Record(bv)
         self.assertEqual('somehost', bmhv.name)
 
+        sn = {"level":"info","ts":1706890740.1449683,
+              "logger":"controllers.HostFirmwareSettings",
+              "msg":"start",
+              "hostfirmwaresettings":{"name":"somehost",
+                                      "namespace":"metal3"}}
+        structured_name = bmlp.Record(sn)
+        self.assertEqual('somehost', structured_name.name)
+
     def test_name_controller_runtime(self):
         e = {"level":"error","ts":1589381055.1638162,
              "logger":"controller-runtime.manager.controller.baremetalhost",
@@ -212,6 +220,14 @@ class RecordTest(unittest.TestCase):
              "\t/go/pkg/mod/github.com/go-logr/zapr@v0.1.1/zapr.go:128"}
         err = bmlp.Record(e)
         self.assertEqual('metal3', err.namespace)
+
+        sn = {"level":"info","ts":1706890740.1449683,
+              "logger":"controllers.HostFirmwareSettings",
+              "msg":"start",
+              "hostfirmwaresettings":{"name":"somehost",
+                                      "namespace":"metal3"}}
+        structured_name = bmlp.Record(sn)
+        self.assertEqual('metal3', structured_name.namespace)
 
     def test_namespace_controller_runtime(self):
         ip_ns = {"level":"info","ts":1589380774.1379526,

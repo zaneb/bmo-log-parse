@@ -188,8 +188,11 @@ class Record:
         elif (self.message == 'received introspection data' and
                 'data' in data):
             self.context = pretty_print(data.pop('data'))
-        ns_name = fq_name.split('/', 1) if fq_name is not None else (None,
-                                                                     None)
+        if isinstance(fq_name, dict):
+            ns_name = fq_name['namespace'], fq_name['name']
+        else:
+            ns_name = fq_name.split('/', 1) if fq_name is not None else (None,
+                                                                         None)
         self.name = ns_name[-1]
         self.namespace = data.get('namespace',
                                   data.get('Request.Namespace',
