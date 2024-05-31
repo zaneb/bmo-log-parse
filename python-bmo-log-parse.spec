@@ -8,7 +8,7 @@
 %endif
 
 Name:           python-%{srcname}
-Version:        0.2.0
+Version:        0.4.0
 Release:        1%{?dist}
 Summary:        Utility for logs from the Metal³ baremetal-operator
 License:        ASL 2.0
@@ -83,6 +83,10 @@ sed -i -e '/^#!/ d' bmo_log_parse.py
 %{_bindir}/bmo-log-parse
 
 %changelog
+* Fri May 31 2024 Zane Bitter <zaneb@fedoraproject.org> 0.4.0-1
+- Add support for filtering webhook logs
+- Handle changes in log formatting
+
 * Fri Feb 11 2022 Zane Bitter <zaneb@fedoraproject.org> 0.2.0-1
 - Add support for new controllers in baremetal-operator process.
 
