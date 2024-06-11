@@ -611,6 +611,7 @@ class TestFilter(unittest.TestCase):
 {"level":"info","ts":1696185326.2333705,"logger":"webhooks.BMCEventSubscription","msg":"validate create","name":"blarg","namespace":"metal3"}
 {"level":"info","ts":1696185326.2333705,"logger":"bmceventsubscription-resource","msg":"validate create","name":"blarg"}
 {"level":"info","ts":1696185326.2333896,"logger":"bmceventsubscription-validation","msg":"validate create","name":"blarg"}
+{"level":"info","ts":1717769018.3849478,"logger":"controllers.HostFirmwareComponents","msg":"start","hostfirmwarecomponents":{"name":"worker-01","namespace":"openshift-machine-api"}}
 """
 
     def setUp(self):
@@ -619,7 +620,7 @@ class TestFilter(unittest.TestCase):
     def test_no_filter(self):
         f = bmlp.get_filters(bmlp.get_options([]))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(19, len(r))
+        self.assertEqual(20, len(r))
 
     def test_filter_name(self):
         f = bmlp.get_filters(bmlp.get_options(['--name=foo']))
@@ -639,7 +640,7 @@ class TestFilter(unittest.TestCase):
     def test_filter_controller(self):
         f = bmlp.get_filters(bmlp.get_options(['--controller-only']))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(11, len(r))
+        self.assertEqual(12, len(r))
 
     def test_filter_controller_bmh(self):
         f = bmlp.get_filters(bmlp.get_options(['--controller-only=bmh']))
@@ -653,6 +654,11 @@ class TestFilter(unittest.TestCase):
 
     def test_filter_controller_hfs(self):
         f = bmlp.get_filters(bmlp.get_options(['--controller-only=hfs']))
+        r = list(bmlp.filtered_records(self.stream, f))
+        self.assertEqual(1, len(r))
+
+    def test_filter_controller_hfc(self):
+        f = bmlp.get_filters(bmlp.get_options(['--controller-only=hfc']))
         r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(1, len(r))
 
@@ -684,7 +690,7 @@ class TestFilter(unittest.TestCase):
     def test_filter_start(self):
         f = bmlp.get_filters(bmlp.get_options(['--start=2020-05-13T14:39:35']))
         r = list(bmlp.filtered_records(self.stream, f))
-        self.assertEqual(14, len(r))
+        self.assertEqual(15, len(r))
 
     def test_filter_end(self):
         f = bmlp.get_filters(bmlp.get_options(['--end=2020-05-13T14:39:36']))

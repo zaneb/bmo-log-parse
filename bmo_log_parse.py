@@ -63,11 +63,13 @@ RECONCILERS = (
     BMH_RECONCILER,
     PPIMG_RECONCILER,
     HFS_RECONCILER,
+    HFC_RECONCILER,
     BMCEVENT_RECONCILER,
 ) = (
     'baremetalhost',
     'preprovisioningimage',
     'hostfirmwaresettings',
+    'hostfirmwarecomponents',
     'bmceventsubscription',
 )
 
@@ -204,7 +206,8 @@ class Record:
         data.pop('reconciler kind', None)
         data.pop('controllerGroup', None)
         data.pop('controllerKind', None)
-        for rt in {'BareMetalHost', 'HostFirmwareSettings',
+        for rt in {'BareMetalHost',
+                   'HostFirmwareSettings', 'HostFirmwareComponents',
                    'PreprovisioningImage', 'BMCEventSubscription'}:
             data.pop(rt, None)
         data.pop('reconcileID', None)
@@ -352,6 +355,8 @@ def parse_controller(ctrl_str):
         return PPIMG_RECONCILER
     if ctrl in {'hostfirmwaresettings', 'hfs'}:
         return HFS_RECONCILER
+    if ctrl in {'hostfirmwarecomponents', 'hfc'}:
+        return HFC_RECONCILER
     if ctrl in {'bmceventsubscription', 'bmcevent'}:
         return BMCEVENT_RECONCILER
     return ctrl_str
