@@ -215,8 +215,7 @@ class Record:
         if logger in PROVISIONER:
             return data.get('host', '').replace('~', '/', 1) or None
 
-        for f in ('baremetalhost', 'Request.Name', 'name',
-                  'hostfirmwaresettings', 'preprovisioningimage'):
+        for f in RECONCILERS + ('Request.Name', 'name'):
             if f in data:
                 return data[f]
         return None
