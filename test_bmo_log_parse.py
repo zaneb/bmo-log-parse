@@ -658,7 +658,9 @@ class TestFilter(unittest.TestCase):
         self.assertEqual(1, len(r))
 
     def test_filter_controller_hfc(self):
-        f = bmlp.get_filters(bmlp.get_options(['--controller-only=hfc']))
+        f = bmlp.get_filters(bmlp.get_options([
+            '--controller-only=hostfirmwarecomponents',
+        ]))
         r = list(bmlp.filtered_records(self.stream, f))
         self.assertEqual(1, len(r))
 

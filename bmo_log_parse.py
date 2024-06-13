@@ -352,7 +352,7 @@ def parse_datetime(dtstr):
 
 def parse_controller(ctrl_str):
     ctrl = ctrl_str.lower()
-    if ctrl in {'baremetalhost', 'bmh'}:
+    if ctrl in {'baremetalhost', 'bmh', 'bmhost'}:
         return BMH_RECONCILER
     if ctrl in {'preprovisioningimage', 'ppimg'}:
         return PPIMG_RECONCILER
@@ -360,9 +360,9 @@ def parse_controller(ctrl_str):
         return DATAIMG_RECONCILER
     if ctrl in {'hostfirmwaresettings', 'hfs'}:
         return HFS_RECONCILER
-    if ctrl in {'hostfirmwarecomponents', 'hfc'}:
+    if ctrl in {'hostfirmwarecomponents'}:
         return HFC_RECONCILER
-    if ctrl in {'bmceventsubscription', 'bmcevent'}:
+    if ctrl in {'bmceventsubscription', 'bmcevent', 'bes'}:
         return BMCEVENT_RECONCILER
     return ctrl_str
 
