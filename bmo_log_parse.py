@@ -83,7 +83,9 @@ WEBHOOKS = (
 _matcher = re.compile(r'''
 (?:
 20[0-9]{2}-[0-1][0-9]-[0-3][0-9]                # ISO8601 date
-T[0-2][0-9]:[0-5][0-9]:[0-6][0-9](?:\.[0-9]+)Z  # ISO8601 time
+T[0-2][0-9]:[0-5][0-9]:[0-6][0-9](?:\.[0-9]+)   # ISO8601 time
+(?:Z|(?:[+-][0-1][0-9]:[0-5][05]))              # ISO8601 time zone
+(?:[ ]stderr[ ]F)?                              # appears in rotated logs
 [ ])?                                           # drop any leading datetime
 (\{.*?\})                                       # match JSON object
 \n''', re.VERBOSE).fullmatch

@@ -572,6 +572,29 @@ class TestReadWithTimestamps(TestRead):
 """
 
 
+class TestReadRotated(TestRead):
+    # must-gather logs from OpenShift that have been rotated are prepended with
+    # a different ISO8601 timestamp and some other garbage
+    log = """
+2020-05-13T14:23:52.5167677+00:00 stderr F {"level":"info","ts":1589379832.5167677,"logger":"cmd","msg":"Go Version: go1.13.8"}
+2020-05-13T14:23:52.8728050+00:00 stderr F {"level":"info","ts":1589379832.872805,"logger":"controller-runtime.metrics","msg":"metrics server is starting to listen","addr":"127.0.0.1:8085"}
+2020-05-13T14:23:52.8731490+00:00 stderr F {"level":"info","ts":1589379832.873149,"logger":"baremetalhost_ironic","msg":"ironic settings","endpoint":"http://172.30.0.47:6385/v1/","inspectorEndpoint":"http://172.30.0.47:5050/v1/","deployKernelURL":"http://172.30.0.47:6180/images/ironic-python-agent.kernel","deployRamdiskURL":"http://172.30.0.47:6180/images/ironic-python-agent.initramfs"}
+2020-05-13T14:23:52.8733840+00:00 stderr F I0513 14:23:52.873384       1 leaderelection.go:241] attempting to acquire leader lease  metal3/baremetal-operator...
+2020-05-13T14:23:52.8825951+00:00 stderr F I0513 14:23:52.882595       1 leaderelection.go:251] successfully acquired lease metal3/baremetal-operator
+2020-05-13T14:39:34.1207273+00:00 stderr F {"level":"info","ts":1589380774.1207273,"logger":"baremetalhost","msg":"Reconciling BareMetalHost","Request.Namespace":"metal3","Request.Name":"ahost"}
+2020-05-13T14:39:34.1207843+00:00 stderr F {"level":"info","ts":1589380774.1207843,"logger":"baremetalhost","msg":"adding finalizer","Request.Namespace":"metal3","Request.Name":"ahost","existingFinalizers":[],"newValue":"baremetalhost.metal3.io"}
+2020-05-13T14:39:34.1284160+00:00 stderr F {"level":"info","ts":1589380774.1288416,"logger":"baremetalhost","msg":"changing provisioning state","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"","old":"","new":"registering"}
+2020-05-13T14:39:34.1288880+00:00 stderr F {"level":"info","ts":1589380774.128888,"logger":"baremetalhost","msg":"saving host status","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"","operational status":"OK","provisioning state":"registering"}
+2020-05-13T14:39:34.1379526+00:00 stderr F {"level":"info","ts":1589380774.1379526,"logger":"baremetalhost_ironic","msg":"validating management access","host":"bsr22ar07c018"}
+2020-05-13T14:39:34.1379595+00:00 stderr F {"level":"info","ts":1589380774.1379595,"logger":"baremetalhost_ironic","msg":"looking for existing node by name","host":"bsr22ar07c018","name":"bsr22ar07c018"}
+2020-05-13T14:39:34.2415836+00:00 stderr F {"level":"info","ts":1589380774.2415836,"logger":"baremetalhost_ironic","msg":"registering host in ironic","host":"bsr22ar07c018"}
+2020-05-13T14:39:34.8010514+00:00 stderr F {"level":"info","ts":1589380774.8010514,"logger":"baremetalhost_ironic","msg":"changing provisioning state","host":"bsr22ar07c018","current":"enroll","existing target":"","new target":"manage"}
+2020-05-13T14:39:34.8608532+00:00 stderr F {"level":"info","ts":1589380774.8608532,"logger":"baremetalhost","msg":"response from validate","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"registering","provResult":{"Dirty":true,"RequeueAfter":10000000000,"ErrorMessage":""}}
+2020-05-13T14:39:34.8704467+00:00 stderr F {"level":"info","ts":1589380774.8704467,"logger":"baremetalhost","msg":"done","Request.Namespace":"metal3","Request.Name":"bsr22ar07c018","provisioningState":"registering","requeue":true,"after":10}
+2020-12-04T01:35:43.472254864+00:00 stderr F {"level":"info","ts":1607045743.4722486,"msg":"Operator Concurrency will be set to a default value of 3"}
+"""
+
+
 class TestParseTime(unittest.TestCase):
     def test_date_only(self):
         self.assertEqual(datetime.datetime(2020, 5, 19),
