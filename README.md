@@ -39,9 +39,9 @@ Several filters are available to winnow the output.
 
     usage: bmo-log-parse [-h] [-c [CONTROLLER] | -p | -w [WEBHOOK]] [--error]
                          [--verbose] [-n NAME] [--namespace NAMESPACE]
-                         [-s START] [-e END] [--list-names]
+                         [-s START] [-e END]
+                         [--list-names | --list-namespaces]
                          [logfile]
-
 
     positional arguments:
       logfile               Input logfile (or "-" to read stdin)
@@ -63,6 +63,7 @@ Several filters are available to winnow the output.
                             Skip ahead to a given time
       -e END, --end END     Stop reading at a given time
       --list-names          List the names of hosts in the log
+      --list-namespaces     List the namespaces of hosts in the log
 
 ## Testing
 

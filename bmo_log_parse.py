@@ -292,6 +292,14 @@ def list_host_names(input_stream, filters, output_stream=sys.stdout):
             seen.add(r.name)
 
 
+def list_host_namespaces(input_stream, filters, output_stream=sys.stdout):
+    seen = set()
+    for r in filtered_records(input_stream, filters):
+        if r.namespace not in seen and r.namespace is not None:
+            output_stream.write(f'{r.namespace}\n')
+            seen.add(r.namespace)
+
+
 def get_filters(options):
     """Iterate over the Filters specified by the given CLI options."""
     if options.start is not None:
@@ -410,8 +418,11 @@ def get_options(args=None):
                         type=parse_datetime,
                         help='Stop reading at a given time')
 
-    parser.add_argument('--list-names', action='store_true',
-                        help='List the names of hosts in the log')
+    list_group = parser.add_mutually_exclusive_group()
+    list_group.add_argument('--list-names', action='store_true',
+                            help='List the names of hosts in the log')
+    list_group.add_argument('--list-namespaces', action='store_true',
+                            help='List the namespaces of hosts in the log')
 
     return parser.parse_args(args)
 
@@ -465,13 +476,16 @@ def main():
         line_buffer = autopage.line_buffer_from_input(logstream)
         error_strategy = autopage.ErrorStrategy.BACKSLASH_REPLACE
         pager = autopage.AutoPager(line_buffering=line_buffer,
-                                   reset_on_exit=not options.list_names,
+                                   reset_on_exit=not (options.list_names or
+                                                      options.list_namespaces),
                                    errors=error_strategy)
         highlight = pager.to_terminal()
         try:
             with pager as output_stream:
                 if options.list_names:
                     list_host_names(logstream, filters, output_stream)
+                elif options.list_namespaces:
+                    list_host_namespaces(logstream, filters, output_stream)
                 else:
                     process_log(logstream, filters, output_stream,
                                 highlight, options.verbose)
